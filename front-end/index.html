@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>George's Rental Management System</title>
+  <link rel="stylesheet" href="/front-end/styles.css" />
+</head>
+<body>
+  <main>
+
+  
+    <section id="login-section">
+      <h1>George's Rental Management System</h1>
+      <h2>Login</h2>
+      <form id="login-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" required />
+
+        <button type="submit">Login</button>
+      </form>
+    </section>
+
+    
+     <div class="layout">
+    <section id="dashboard-section" style="display: none;">
+      <div class="sidebar">
+        <h2>GRMS</h2>
+        <ul>
+          <li id="nav-dashboard">Dashboard</li>
+          <li id="nav-tenants">Current Tenants</li>
+          <li id="nav-payments">Payments</li>
+          <li id="nav-reports">Reports</li>
+        </ul>
+      </div>
+
+      <div class="main">
+        
+        <section id="dashboard-content">
+          <h1>Dashboard</h1>
+          <div class="card-container">
+            <div class="card">
+              <h3>Total Tenants</h3>
+              <p id="tenant-count">0</p>
+            </div>
+            <div class="card">
+              <h3>Total Rent Collected</h3>
+              <p id="total-rent">KSh 0</p>
+            </div>
+            <div class="card">
+              <h3>Outstanding Balance</h3>
+              <p id="balance-due">KSh 0</p>
+            </div>
+          </div>
+          
+          </div>
+        </section>
+
+     
+        <section id="tenant-section" style="display: none;">
+          <h2>Current Tenants</h2>
+          <table class="tenants-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>House No.</th>
+                <th>Rent Amount</th>
+                <th>Last Payment</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tenants-body">
+             
+            </tbody>
+          </table>
+          <button id="addTenantBtn" style="margin-top: 20px;">Add Tenant</button> 
+        </section>
+
+       
+        <section id="payment-section" style="display: none;">
+          <h2>Payment Records</h2>
+          <table class="tenants-table">
+            <thead>
+              <tr>
+                <th>Tenant Name</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Method</th>
+              </tr>
+            </thead>
+            <tbody id="payments-body">
+             
+            </tbody>
+          </table>
+        </section>
+
+      
+        <section id="report-section" style="display: none;">
+          <h2>Reports</h2>
+          <table class="reports-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Total Tenants</td>
+                <td><span id="report-tenant-count">15</span></td>
+              </tr>
+              <tr>
+                <td>Total Rent Collected</td>
+                <td><span id="report-rent">KSh 40000</span></td>
+              </tr>
+              <tr>
+                <td>Outstanding Balances</td>
+                <td><span id="report-due">KSh 56000</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+        
+      </div>
+    </section>
+  </main>
+  <div id="addTenantModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="closeModal">&times;</span>
+      <h2>Add New Tenant</h2>
+      <form id="addTenantForm">
+        <label for="tenantName">Name:</label>
+        <input type="text" id="tenantName" required>
+  
+        <label for="houseNumber">House Number:</label>
+        <input type="text" id="houseNumber" required>
+  
+        <label for="rentAmount">Rent Amount (KSh):</label>
+        <input type="number" id="rentAmount" required>
+  
+        <label for="lastPayment">Last Payment Date:</label>
+        <input type="date" id="lastPayment" required>
+  
+        <button type="submit">Add Tenant</button>
+      </form>
+    </div>
+  </div>
+</div>
+  <script src="/front-end/script.js"></script>
+</body>
+</html>
