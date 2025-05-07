@@ -388,3 +388,42 @@ body {
     display: grid;
     grid-template-columns: 200px minmax(0, 1fr);
   }
+ 
+@media (max-width: 768px) {
+  #dashboard-section .content {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .main {
+    padding: 20px;
+  }
+
+  .dashboard-cards {
+    flex-direction: column;
+  }
+
+  .card {
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .sidebar h2,
+  .sidebar ul li a {
+    font-size: 16px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .main h1 {
+    font-size: 20px;
+  }
+}
