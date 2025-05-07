@@ -264,7 +264,25 @@ body {
     grid-template-rows: auto auto 1fr;
     flex-direction: column; 
     align-items: flex-start;  
-    height: 100vh;  
+    height: 100vh; 
+    transition: transform 0.3s ease-in-out; 
+  }
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transform: translateX(-100%);
+      z-index: 1000;
+      width: 220px;
+    }
+    .sidebar.active {
+      transform: translateX(0);
+    }
+    .main {
+      padding-left: 0; /* prevent horizontal offset on mobile */
+    }
   }
   
   .sidebar h2 {
