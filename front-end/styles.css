@@ -1,0 +1,375 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0fdf4;
+    color: #333;
+  }
+  
+  
+  h1, h2 {
+    margin-bottom: 10px;
+  }
+  
+  
+  #login-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #d1fae5;
+  }
+  
+  #login-section h1 {
+    font-size: 28px;
+    color: #065f46;
+  }
+  
+  #login-section h2 {
+    color: #065f46;
+  }
+  
+  #login-form {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 300px;
+  }
+  
+  #login-form label {
+    display: block;
+    margin-top: 10px;
+  }
+  
+  #login-form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #a7f3d0;
+    border-radius: 4px;
+  }
+  
+  #login-form button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  #login-form button:hover {
+    background-color: #059669;
+  }
+  
+  /* Dashboard Layout */
+  #dashboard-section {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .sidebar {
+    width: 220px;
+    background-color: #065f46;
+    color: white;
+    padding: 20px;
+  }
+  
+  .sidebar h2 {
+    color: #fff;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+  }
+  
+  .sidebar ul li {
+    padding: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  
+  .sidebar ul li:hover {
+    background-color: #10b981;
+  }
+  
+  .content {
+    flex: 1;
+    padding: 30px;
+    background-color: #fff;
+    overflow-y: auto;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  /* Table Styles */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  table th,
+  table td {
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    text-align: left;
+  }
+  
+  table th {
+    background-color: #ecfdf5;
+  }
+  
+  /* Status Indicators */
+  .status-paid {
+    color: #10b981;
+    font-weight: bold;
+  }
+  
+  .status-unpaid {
+    color: #ef4444;
+    font-weight: bold;
+  }
+  
+  /* Mark as Paid Button */
+  .mark-paid-btn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    margin-left: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .mark-paid-btn:hover {
+    background-color: #059669;
+  }
+  
+  /* Add Tenant Button */
+  #addTenantBtn {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  #addTenantBtn:hover {
+    background-color: #059669;
+  }
+  
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  
+  .modal-content {
+    background-color: white;
+    margin: 8% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  
+  .close-button {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .close-button:hover {
+    color: red;
+  }
+  
+  /* Form Fields */
+  form input,
+  form label,
+  form button {
+    display: block;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  
+  form input {
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+  }
+  
+  form button {
+    padding: 10px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  form button:hover {
+    background-color: #059669;
+  }
+  
+  /* Dashboard Layout */
+  #dashboard-section {
+    display: flex;  
+    background-color: #f0fdf4; 
+    
+  }
+  
+  
+  .sidebar {
+    width: 240px;  
+    background-color: #065f46;
+    color: white;
+    padding: 30px 20px;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    flex-direction: column; 
+    align-items: flex-start;  
+    height: 100vh;  
+  }
+  
+  .sidebar h2 {
+    color: #d1fae5;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .sidebar ul li {
+    background-color: #047857;
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .sidebar ul li:hover {
+    background-color: #10b981;
+  }
+  
+  
+  .content {
+    flex-grow: 1;  
+    padding: 40px;
+    background-color: #f0fdf4;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100vh;  
+    margin: 20px 10px 20px 0px;  
+  }
+  
+  
+  
+  
+  .content h1 {
+    font-size: 32px;
+    color: #065f46;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  
+  .card-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  
+  .card {
+    background-color: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    min-width: 220px;
+  }
+  
+  .card h3 {
+    margin: 0;
+    color: #047857;
+    font-size: 24px;
+  }
+  
+  .card p {
+    font-size: 18px;
+    margin-top: 10px;
+    color: #374151;
+  }
+  
+  
+  .content h2 {
+    margin-top: 40px;
+    color: #047857;
+    text-align: center;
+  }
+  
+  
+  table {
+    width: 100%;  
+    margin:  0;  
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  table th, table td {
+    padding: 14px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  table th {
+    background-color: #ecfdf5;
+    color: #065f46;
+  }
+  
+  .status-paid {
+    color: #10b981;
+    font-weight: bold;
+  }
+  
+  .status-unpaid {
+    color: #ef4444;
+    font-weight: bold;
+  }
+  .layout{
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
