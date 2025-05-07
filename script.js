@@ -152,3 +152,7 @@ document.getElementById("login-form").addEventListener("submit", function (e) {
     modal.style.display = "none";
     form.reset();
   });
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('active');
+  }
