@@ -205,7 +205,7 @@ table th {
   color: red;
 }
 
-/* Form Fields */
+
 form input,
 form label,
 form button {
@@ -230,10 +230,11 @@ form button {
 }
 
 form button:hover {
-  background-color: #059669;
+  background-color: #065f46;
 }
-
-/* Dashboard Layout */
+.menu-toggle{
+  color: #10b981 ;
+}
 #dashboard-section {
   display: flex;  
   background-color: #f0fdf4; 
@@ -399,7 +400,7 @@ table th {
   }
 }
 
-/* Slight adjustments for very small phones */
+
 @media (max-width: 480px) {
   .sidebar h2,
   .sidebar ul li a {
