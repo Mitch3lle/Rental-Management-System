@@ -1,3 +1,7 @@
+*{
+  box-sizing: border-box;
+}
+
 
 body {
   font-family: 'Segoe UI', sans-serif;
@@ -5,6 +9,7 @@ body {
   padding: 0;
   background-color: #f6f6f6;
   color: #2f2f2f;
+  overflow: hidden;
 }
 
 
@@ -12,6 +17,11 @@ h1, h2 {
   margin-bottom: 10px;
 }
 
+#login-form input,
+#login-form button {
+  width: 100%;
+  box-sizing: border-box; /* ensures padding doesn't break layout */
+}
 
 #login-section {
   display: flex;
@@ -19,6 +29,7 @@ h1, h2 {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  padding: 20px;
   background-image: url(log-in\ image\ for\ GPRMS.png) ;
   background-repeat: no-repeat;
 
@@ -40,13 +51,14 @@ h1, h2 {
 }
 
 #login-form {
-  background-color: rgba(209, 244, 209, 0.8);
+  background-color: rgba(255, 255, 255, 0.8);
   padding: 40px 35px;
   border-radius: 8px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  width: 350px;
-  height: auto;
+  width: 90%;
+  max-width: 400px;
   min-height: 400px;
+  display: flex;
   flex-direction: column;
   justify-content: center;
 }
@@ -486,5 +498,20 @@ table th {
 
   .sidebar.active {
     display: block;
+  }
+}
+@media (max-width: 480px) {
+  #login-form {
+    padding: 20px;
+    min-height: auto;
+  }
+
+  #login-section h1 {
+    font-size: 22px;
+  }
+
+  .google-icon {
+    height: 16px;
+    width: 16px;
   }
 }
