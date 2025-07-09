@@ -3,145 +3,147 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=National+Park:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="favicon-96x96.png">
   <title>George's Rental Management System</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <main>
-
-  
+    <!-- LOGIN SECTION (PRESERVED EXACTLY) -->
     <section id="login-section">
-      
+      <h1>George's Rental Management System</h1>
       <h2>Login</h2>
       <form id="login-form">
         <label for="username">Username:</label>
         <input type="text" id="username" required />
-
         <label for="password">Password:</label>
         <input type="password" id="password" required />
-
         <a href="#" class="forgot-password">Forgot password?</a>
-
         <button type="submit">Login</button>
         <div class="divider">or</div>
-        
-          <button type="button" class="google-btn">
-           <img src="google-icon.jpg" alt="Google logo" style="height: 50px; width: 50px; margin-right: 8px;">
-               Sign up with Google
-                </button>
-
-          
-        
+        <button type="button" class="google-btn">
+          <img src="google-icon.jpg" alt="Google logo" style="height: 50px; width: 50px; margin-right: 8px;">
+          Sign up with Google
+        </button>
       </form>
     </section>
 
-    <button class="menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
-     <div class="layout">
-    <section id="dashboard-section" style="display: none;">
-      <div class="sidebar">
-        <h2>GRMS</h2>
-        <ul>
-          <li id="nav-dashboard">Dashboard</li>
-          <li id="nav-tenants">Current Tenants</li>
-          <li id="nav-payments">Payments</li>
-          <li id="nav-reports">Reports</li>
-        </ul>
-      </div>
+   <section id="dashboard-section" style="display: none;">
+      <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <h2>GRPMS</h2>
+          <ul>
+            <li id="nav-dashboard">Dashboard</li>
+            <li id="nav-tenants">Current Tenants</li>
+            <li id="nav-payments">Payments</li>
+            <li id="nav-reports">Reports</li>
+            <li id="nav-messages">Messages</li>
+          </ul>
+        </div>
 
-      <div class="main">
-        
-        <section id="dashboard-content">
-          <h1>Dashboard</h1>
-          <div class="card-container">
-            <div class="card">
-              <h3>Total Tenants</h3>
-              <p id="tenant-count">0</p>
-            </div>
-            <div class="card">
-              <h3>Total Rent Collected</h3>
-              <p id="total-rent">KSh 0</p>
-            </div>
-            <div class="card">
-              <h3>Outstanding Balance</h3>
-              <p id="balance-due">KSh 0</p>
-            </div>
-          </div>
+        <!-- Main Content -->
+        <div class="main">
           
-          </div>
-        </section>
+          <!-- DASHBOARD -->
+          <section id="dashboard-content">
+            <div class="card-container">
+              <div class="card">
+                <h3>Total Tenants</h3>
+                <p id="tenant-count">0</p>
+              </div>
+              <div class="card">
+                <h3>Total Rent Collected</h3>
+                <p id="total-rent">KSh 0</p>
+              </div>
+              <div class="card">
+                <h3>Outstanding Balance</h3>
+                <p id="balance-due">KSh 0</p>
+              </div>
+            </div>
+            <div class="charts">
+              <div class="chart-container">
+                <h4>Payment Activity</h4>
+                <canvas id="paymentsChart"></canvas>
+              </div>
+              <div class="chart-container">
+                <h4>Balance Trend</h4>
+                <canvas id="balanceChart"></canvas>
+              </div>
+            </div>
+          </section>
 
-     
-        <section id="tenant-section" style="display: none;">
-          <h2>Current Tenants</h2>
-          <table class="tenants-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>House No.</th>
-                <th>Rent Amount</th>
-                <th>Last Payment</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="tenants-body">
-             
-            </tbody>
-          </table>
-          <button id="addTenantBtn" style="margin-top: 20px;">Add Tenant</button> 
-        </section>
+          <!-- TENANTS -->
+          <section id="tenant-section" style="display: none;">
+            <h2>Current Tenants</h2>
+            <table class="tenants-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>House No.</th>
+                  <th>Rent Amount</th>
+                  <th>Last Payment</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tenants-body"></tbody>
+            </table>
+            <button id="addTenantBtn">Add Tenant</button>
+          </section>
 
-       
-        <section id="payment-section" style="display: none;">
-          <h2>Payment Records</h2>
-          <table class="tenants-table">
-            <thead>
-              <tr>
-                <th>Tenant Name</th>
-                <th>Amount</th>
-                <th>Date</th>
-                <th>Method</th>
-              </tr>
-            </thead>
-            <tbody id="payments-body">
-             
-            </tbody>
-          </table>
-        </section>
+          <!-- PAYMENTS -->
+          <section id="payment-section" style="display: none;">
+            <h2>Payment Records</h2>
+            <table class="tenants-table">
+              <thead>
+                <tr>
+                  <th>Tenant Name</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Method</th>
+                </tr>
+              </thead>
+              <tbody id="payments-body"></tbody>
+            </table>
+          </section>
 
-      
-        <section id="report-section" style="display: none;">
-          <h2>Reports</h2>
-          <table class="reports-table">
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Total Tenants</td>
-                <td><span id="report-tenant-count">15</span></td>
-              </tr>
-              <tr>
-                <td>Total Rent Collected</td>
-                <td><span id="report-rent">KSh 40000</span></td>
-              </tr>
-              <tr>
-                <td>Outstanding Balances</td>
-                <td><span id="report-due">KSh 56000</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-        
+          <!-- REPORTS -->
+          <section id="report-section" style="display: none;">
+            <h2>Reports</h2>
+            <table class="reports-table">
+              <thead>
+                <tr><th>Metric</th><th>Value</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Total Tenants</td><td id="report-tenant-count">0</td></tr>
+                <tr><td>Total Rent Collected</td><td id="report-rent">KSh 0</td></tr>
+                <tr><td>Outstanding Balances</td><td id="report-due">KSh 0</td></tr>
+              </tbody>
+            </table>
+          </section>
+
+        </div>
       </div>
     </section>
+    <section id="messages-section" style="display: none;">
+  <h2>Tenant Communication</h2>
+
+  <div class="messages-container">
+    <div class="messages-display" id="messageDisplay">
+      <!-- Messages will appear here -->
+    </div>
+
+    <form id="messageForm">
+      <label for="messageInput">Send Message to Tenants:</label>
+      <textarea id="messageInput" rows="3" placeholder="Type your message here..." required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+</section>
+
   </main>
+
+  <!-- MODAL -->
   <div id="addTenantModal" class="modal">
     <div class="modal-content">
       <span class="close-button" id="closeModal">&times;</span>
@@ -149,21 +151,17 @@
       <form id="addTenantForm">
         <label for="tenantName">Name:</label>
         <input type="text" id="tenantName" required>
-  
         <label for="houseNumber">House Number:</label>
         <input type="text" id="houseNumber" required>
-  
         <label for="rentAmount">Rent Amount (KSh):</label>
         <input type="number" id="rentAmount" required>
-  
         <label for="lastPayment">Last Payment Date:</label>
         <input type="date" id="lastPayment" required>
-  
         <button type="submit">Add Tenant</button>
       </form>
     </div>
   </div>
-</div>
+
   <script src="script.js"></script>
 </body>
 </html>
