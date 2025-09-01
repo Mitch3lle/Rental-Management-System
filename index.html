@@ -9,9 +9,8 @@
 </head>
 <body>
   <main>
-    <!-- LOGIN SECTION (PRESERVED EXACTLY) -->
+    <!-- LOGIN SECTION -->
     <section id="login-section">
-      <h1>George's Rental Management System</h1>
       <h2>Login</h2>
       <form id="login-form">
         <label for="username">Username:</label>
@@ -28,7 +27,8 @@
       </form>
     </section>
 
-   <section id="dashboard-section" style="display: none;">
+    <!-- DASHBOARD SECTION -->
+    <section id="dashboard-section" style="display: none;">
       <div class="layout">
         <!-- Sidebar -->
         <div class="sidebar">
@@ -122,25 +122,24 @@
             </table>
           </section>
 
-        </div>
-      </div>
+          <!-- MESSAGES -->
+          <section id="messages-section" style="display: none;">
+            <h2>Tenant Communication</h2>
+            <div class="messages-container">
+              <div class="messages-display" id="messageDisplay">
+                <!-- Messages will appear here -->
+              </div>
+              <form id="messageForm">
+                <label for="messageInput">Send Message to Tenants:</label>
+                <textarea id="messageInput" rows="3" placeholder="Type your message here..." required></textarea>
+                <button type="submit">Send</button>
+              </form>
+            </div>
+          </section>
+
+        </div> <!-- End Main -->
+      </div> <!-- End Layout -->
     </section>
-
-    <section id="messages-section" style="display: none;">
-  <h2>Tenant Communication</h2>
-  <div class="messages-container">
-    <div class="messages-display" id="messageDisplay">
-      <!-- Messages will appear here -->
-    </div>
-    <form id="messageForm">
-      <label for="messageInput">Send Message to Tenants:</label>
-      <textarea id="messageInput" rows="3" placeholder="Type your message here..." required></textarea>
-      <button type="submit">Send</button>
-    </form>
-  </div>
-</section>
-
-
   </main>
 
   <!-- MODAL -->

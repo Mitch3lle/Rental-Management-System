@@ -37,6 +37,8 @@ document.getElementById("nav-dashboard").onclick = () => showSection("dashboard-
 
 document.getElementById("nav-tenants").onclick = () => showSection("tenant-section");
 
+document.getElementById("nav-messages").onclick = () => showSection("messages-section");
+
 document.getElementById("nav-payments").onclick = () => {
   showSection("payment-section");
 
@@ -65,7 +67,7 @@ document.getElementById("nav-reports").onclick = () => {
   document.getElementById("report-due").textContent = `KSh ${due}`;
 };
 
-document.getElementById("nav-messages").onclick = () => showSection("messages-section");
+
 
 // ========== TENANT DATA ==========
 const tenants = [
@@ -165,7 +167,8 @@ function renderCharts() {
 }
 
 // ========== MESSAGES ==========
-const messageDisplay = document.getElementById("messageDisplay");
+document.addEventListener("DOMContentLoaded", function () {
+const messageDisplay = document.getElementById("messageDisplay"); 
 const messageForm = document.getElementById("messageForm");
 
 messageForm.addEventListener("submit", function (e) {
@@ -180,4 +183,5 @@ messageForm.addEventListener("submit", function (e) {
     input.value = "";
     messageDisplay.scrollTop = messageDisplay.scrollHeight;
   }
+});
 });
