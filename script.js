@@ -1,15 +1,16 @@
-// ========== LOGIN ==========
-document.getElementById("login-form").addEventListener("submit", function (e) {
+// ---------- LOGIN WITH USERNAME/PASSWORD ----------
+document.getElementById("login-form").addEventListener("submit", function(e) {
   e.preventDefault();
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   if (username === "Admin" && password === "admin123") {
     document.getElementById("login-section").style.display = "none";
     document.getElementById("dashboard-section").style.display = "block";
-    showSection("dashboard-content");
-    updateDashboard();
-    renderCharts();
+  
+  showSection("dashboard-content");
+  updateDashboard();
+  renderCharts();
   } else {
     alert("Invalid credentials.");
   }
@@ -185,3 +186,4 @@ messageForm.addEventListener("submit", function (e) {
   }
 });
 });
+
