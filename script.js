@@ -50,6 +50,21 @@ document.getElementById("google-login-btn").addEventListener("click", function()
   }
 });
 
+// ---------- FORGOT PASSWORD ----------
+document.getElementById("forgot-password-link").addEventListener("click", function(e){
+  e.preventDefault();
+  document.getElementById("forgot-password-form").style.display = "block";
+});
+
+document.getElementById("reset-btn").addEventListener("click", function(){
+  const email = document.getElementById("reset-email").value.trim();
+  if(!email){
+    alert("Please enter your email address.");
+    return;
+  }
+  document.getElementById("reset-message").textContent = 
+    "If this email is connected to an account, you will receive a password reset link.";
+});
 // ========== SECTION VISIBILITY ==========
 function showSection(id) {
   const sections = [
