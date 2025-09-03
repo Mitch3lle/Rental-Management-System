@@ -29,6 +29,27 @@ document.getElementById("toggle-password").addEventListener("click", function(){
   }
 });
 
+// ---------- DUMMY GOOGLE LOGIN ----------
+document.getElementById("google-login-btn").addEventListener("click", function(){
+  const proceed = confirm("Simulated Google Login\n\nClick OK to login with a dummy Google account.");
+  if(proceed){
+    const fakeUser = {
+      name: "Jennifer Wakwaya",
+      email: "jeniferwakwaya@gmail.com",
+      picture: "https://via.placeholder.com/100"
+    };
+
+    // Show user info
+    document.getElementById("user-info").style.display = "block";
+    document.getElementById("user-name").textContent = fakeUser.name;
+    document.getElementById("user-email").textContent = fakeUser.email;
+    document.getElementById("user-pic").src = fakeUser.picture;
+
+    // Hide the Google login button
+    this.style.display = "none";
+  }
+});
+
 // ========== SECTION VISIBILITY ==========
 function showSection(id) {
   const sections = [
