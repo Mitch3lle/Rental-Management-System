@@ -9,23 +9,83 @@
 </head>
 <body>
   <main>
-    <!-- LOGIN SECTION -->
-    <section id="login-section">
-      <h2>Login</h2>
-      <form id="login-form">
-        <label for="username">Username:</label>
-        <input type="text" id="username" required />
-        <label for="password">Password:</label>
-        <input type="password" id="password" required />
-        <a href="#" class="forgot-password">Forgot password?</a>
-        <button type="submit">Login</button>
-        <div class="divider">or</div>
-        <button type="button" class="google-btn">
-          <img src="google-icon.jpg" alt="Google logo" style="height: 50px; width: 50px; margin-right: 8px;">
-          Sign up with Google
-        </button>
-      </form>
-    </section>
+  <!-- LOGIN SECTION -->
+<section id="login-section" >
+  <h2>Login</h2>
+  <form id="login-form">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required />
+
+    <label for="password">Password:</label>
+    <div class="password-wrapper">
+      <input type="password" id="password" name="password" required />
+      <i class="fa-solid fa-eye toggle-password" id="toggle-password"></i>
+    </div>
+
+    <a href="#" class="forgot-password" id="forgot-password-link">Forgot password?</a>
+
+    
+
+    <button type="submit">Login</button>
+    <div class="divider">or</div>
+    
+
+    <!-- Dummy Google Login -->
+    <button type="button" id="google-login-btn" class="google-btn">
+      <img src="google-icon.jpg" alt="Google logo" style="height: 20px; width: 20px; margin-right: 8px;">
+      Log in with Google
+    </button>
+
+    <div id="user-info" style="margin-top:20px; display:none;">
+      <img id="user-pic" style="border-radius:50%; width:50px; height:50px;"><br>
+      <span id="user-name"></span><br>
+      <span id="user-email"></span>
+    </div>
+
+    <!-- Email Signup -->
+    <button type="button" id="email-signup-btn" class="email-btn">
+      Sign up with Email
+    </button>
+  </form>
+</section>
+
+  <div id="forgot-password-form" style="display:none; margin-top:20px;">
+      <h3>Reset Password</h3>
+      <p>Enter your email address to reset your password:</p>
+      <input type="email" id="reset-email " name="reset-email" placeholder="Enter your email" required>
+      <button id="reset-btn" type="button">Reset Password</button>
+      <p id="reset-message" style="margin-top:10px; color:green;"></p>
+    </div>
+
+<!-- EMAIL SIGNUP SECTION -->
+<section id="email-signup-section" class="auth-section" style="display: none;">
+  <h2>Create Account</h2>
+  <form id="email-signup-form">
+    <label for="signup-email">Email:</label>
+    <input type="email" id="signup-email" required />
+
+    <label for="signup-password">Password:</label>
+    <div class="password-wrapper">
+      <input type="password" id="signup-password" required />
+      <i class="fa-solid fa-eye toggle-password"></i>
+    </div>
+
+    <label for="signup-confirm-password">Confirm Password:</label>
+    <div class="password-wrapper">
+      <input type="password" id="signup-confirm-password" required />
+      <i class="fa-solid fa-eye toggle-password"></i>
+    </div>
+
+    <button type="submit">Sign Up</button>
+
+    <p class="switch-form">
+      Already have an account? 
+      <a href="#" id="back-to-login-email">Login</a>
+    </p>
+  </form>
+</section>
+
+
 
     <!-- DASHBOARD SECTION -->
     <section id="dashboard-section" style="display: none;">
