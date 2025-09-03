@@ -65,6 +65,21 @@ document.getElementById("reset-btn").addEventListener("click", function(){
   document.getElementById("reset-message").textContent = 
     "If this email is connected to an account, you will receive a password reset link.";
 });
+
+// ---------- EMAIL SIGNUP ----------
+document.getElementById("email-signup-btn").addEventListener("click", function(){
+  document.getElementById("login-section").style.display = "none";
+  document.getElementById("email-signup-section").style.display = "block";
+});
+
+document.getElementById("back-to-login-email").addEventListener("click", function(e){
+  e.preventDefault();
+  document.getElementById("email-signup-section").style.display = "none";
+  document.getElementById("login-section").style.display = "block";
+});
+
+
+
 // ========== SECTION VISIBILITY ==========
 function showSection(id) {
   const sections = [
