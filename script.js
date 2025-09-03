@@ -16,6 +16,19 @@ document.getElementById("login-form").addEventListener("submit", function(e) {
   }
 });
 
+
+// ---------- TOGGLE PASSWORD ----------
+document.getElementById("toggle-password").addEventListener("click", function(){
+  const passwordInput = document.getElementById("password");
+  if(passwordInput.type === "password"){
+    passwordInput.type = "text";
+    this.classList.replace("fa-eye", "fa-eye-slash");
+  } else {
+    passwordInput.type = "password";
+    this.classList.replace("fa-eye-slash", "fa-eye");
+  }
+});
+
 // ========== SECTION VISIBILITY ==========
 function showSection(id) {
   const sections = [
