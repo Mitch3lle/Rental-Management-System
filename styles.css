@@ -126,6 +126,189 @@ h1, h2 {
   width: 20px;
 }
 
+/*password + togggle forgot password */
+.password-wrapper {
+  
+  width: 100%;
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 40px; /* leave space for the eye */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #666;
+  user-select: none;
+}
+
+.forgot-password {
+  display: block;
+  margin: 8px 0;
+  font-size: 14px;
+  color:#065f46 ;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+/* Google Signup Section */
+#google-signup-section {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 25px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.8);
+  
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+#google-signup-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+#google-signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#google-signup-form label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #444;
+}
+
+#google-signup-form input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border 0.2s;
+}
+
+#google-signup-form input:focus {
+  border-color:#d4f5eb ;
+  outline: none;
+}
+
+#google-signup-form button {
+  background:#065f46  ;
+  color: white;
+  font-size: 1rem;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#google-signup-form button:hover {
+  background:#013d2c  ;
+}
+
+/* Back link */
+#google-signup-form .switch-form {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+#google-signup-form .switch-form a {
+  color:#065f46 ;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#google-signup-form .switch-form a:hover {
+  text-decoration: underline;
+}
+/* Email Signup Section */
+#email-signup-section {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 25px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+#email-signup-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+#email-signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#email-signup-form label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #444;
+}
+
+#email-signup-form input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border 0.2s;
+}
+
+#email-signup-form input:focus {
+  border-color: #d4f5eb;
+  outline: none;
+}
+
+#email-signup-form button {
+  background: #065f46;
+  color: white;
+  font-size: 1rem;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#email-signup-form button:hover {
+  background: #013d2c;
+}
+
+/* Back link */
+#email-signup-form .switch-form {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+#email-signup-form .switch-form a {
+  color: #065f46;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#email-signup-form .switch-form a:hover {
+  text-decoration: underline;
+}
 
 .layout {
   display: flex;
@@ -372,3 +555,6 @@ button {
 #messageForm button:hover {
   background-color: #059669;
 }
+/* Shared background for all auth sections */
+
+
