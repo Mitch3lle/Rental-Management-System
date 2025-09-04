@@ -188,7 +188,7 @@ const tenants = [
 function populateTenants() {
   const tbody = document.getElementById("tenants-body");
   tbody.innerHTML = "";
-  tenants.forEach(t => {
+  tenants.forEach((t, index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${t.name}</td>
@@ -196,11 +196,16 @@ function populateTenants() {
       <td>KSh ${t.rent}</td>
       <td>${t.lastPayment}</td>
       <td>
-        <span class="${t.paid ? 'status-paid' : 'status-unpaid'}">${t.paid ? 'Paid' : 'Unpaid'}</span>
+        <span class="${t.paid ? 'status-paid' : 'status-unpaid'}">
+          ${t.paid ? 'Paid' : 'Unpaid'}
+        </span>
         ${t.paid ? '' : '<button class="mark-paid-btn">Mark as Paid</button>'}
-      </td>`;
+        <button class="delete-btn">Delete</button>
+      </td>
+    `;
     tbody.appendChild(row);
 
+    // Mark as paid
     if (!t.paid) {
       row.querySelector(".mark-paid-btn").onclick = () => {
         t.paid = true;
@@ -208,9 +213,18 @@ function populateTenants() {
         updateDashboard();
       };
     }
+
+    // Delete tenant
+    row.querySelector(".delete-btn").onclick = () => {
+      if (confirm(`Are you sure you want to delete ${t.name}?`)) {
+        tenants.splice(index, 1); // remove tenant from array
+        populateTenants();
+        updateDashboard();
+      }
+    };
   });
 }
-populateTenants();
+
 
 // ========== DASHBOARD DATA ==========
 function updateDashboard() {
