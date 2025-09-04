@@ -1,20 +1,65 @@
 // ---------- LOGIN WITH USERNAME/PASSWORD ----------
-document.getElementById("login-form").addEventListener("submit", function(e) {
+document.getElementById("login-form").addEventListener("submit", function (e) {
   e.preventDefault();
+
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
-  if (username === "Admin" && password === "admin123") {
+  // Show loading spinner
+  const loader = document.getElementById("login-loading");
+  loader.style.display = "block";
+
+  // Hide any old error
+  document.getElementById("login-error").style.display = "none";
+
+  // Simulate server check
+  setTimeout(() => {
+    loader.style.display = "none"; // hide after 1.5s
+
+    if (username === "Admin" && password === "admin123") {
+      // Proceed to OTP step instead of dashboard
+      showOtpStep();
+    } else {
+      showError("Invalid username or password.");
+    }
+  }, 1500);
+});
+
+// ---------- INLINE ERROR HANDLER ----------
+function showError(message) {
+  const errorEl = document.getElementById("login-error");
+  errorEl.textContent = message;
+  errorEl.style.display = "block";
+}
+
+// ---------- OTP STEP ----------
+function showOtpStep() {
+  // Hide login form, show OTP input
+  document.getElementById("login-form").style.display = "none";
+  document.getElementById("otp-section").style.display = "block";
+}
+
+document.getElementById("otp-submit-btn").addEventListener("click", () => {
+  const otp = document.getElementById("otp-code").value.trim();
+
+  if (otp === "123456") { // ✅ Dummy OTP for now
+    document.getElementById("otp-error").style.display = "none";
+    document.getElementById("otp-section").style.display = "none";
+
+    // Show dashboard + charts
     document.getElementById("login-section").style.display = "none";
     document.getElementById("dashboard-section").style.display = "block";
-  
-  showSection("dashboard-content");
-  updateDashboard();
-  renderCharts();
+    showSection("dashboard-content");
+    updateDashboard();
+    renderCharts();
   } else {
-    alert("Invalid credentials.");
+    const otpError = document.getElementById("otp-error");
+    otpError.textContent = "Invalid OTP code.";
+    otpError.style.display = "block";
   }
 });
+
+
 
 
 // ---------- TOGGLE PASSWORD ----------
