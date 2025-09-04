@@ -16,7 +16,14 @@
   <!-- LOGIN SECTION -->
 <section id="login-section" >
   <h2>Login</h2>
+
   <form id="login-form">
+       <div id="login-loading" style="display:none; margin-top:10px;">
+       <span class="spinner"></span> Logging in...
+       </div>
+      <p id="login-error" style="color:red; margin-top:10px; display:none;"></p>
+
+
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" required />
 
