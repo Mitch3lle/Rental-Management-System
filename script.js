@@ -201,6 +201,7 @@ function populateTenants() {
           ${t.paid ? 'Paid' : 'Unpaid'}
         </span>
         ${t.paid ? '' : '<button class="mark-paid-btn">Mark as Paid</button>'}
+        <button class="edit-btn">Edit</button>
         <button class="delete-btn">Delete</button>
       </td>
     `;
@@ -215,16 +216,32 @@ function populateTenants() {
       };
     }
 
+    // Edit tenant
+    row.querySelector(".edit-btn").onclick = () => {
+      const newName = prompt("Enter new tenant name:", t.name);
+      const newHouse = prompt("Enter new house:", t.house);
+      const newRent = prompt("Enter new rent amount:", t.rent);
+
+      if (newName && newHouse && newRent) {
+        t.name = newName;
+        t.house = newHouse;
+        t.rent = parseFloat(newRent);
+        populateTenants();
+        updateDashboard();
+      }
+    };
+
     // Delete tenant
     row.querySelector(".delete-btn").onclick = () => {
       if (confirm(`Are you sure you want to delete ${t.name}?`)) {
-        tenants.splice(index, 1); // remove tenant from array
+        tenants.splice(index, 1);
         populateTenants();
         updateDashboard();
       }
     };
   });
 }
+
 populateTenants();
 
 // ========== DASHBOARD DATA ==========
