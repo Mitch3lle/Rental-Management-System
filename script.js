@@ -147,6 +147,7 @@ document.getElementById("nav-dashboard").onclick = () => showSection("dashboard-
 
 document.getElementById("nav-tenants").onclick = () => showSection("tenant-section");
 
+
 document.getElementById("nav-messages").onclick = () => showSection("messages-section");
 
 document.getElementById("nav-payments").onclick = () => {
@@ -224,7 +225,7 @@ function populateTenants() {
     };
   });
 }
-
+populateTenants();
 
 // ========== DASHBOARD DATA ==========
 function updateDashboard() {
