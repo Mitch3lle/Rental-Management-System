@@ -95,12 +95,21 @@ document.getElementById("google-login-btn").addEventListener("click", function()
   }
 });
 
-// ---------- FORGOT PASSWORD ----------
+// Show Forgot Password form
 document.getElementById("forgot-password-link").addEventListener("click", function(e){
   e.preventDefault();
-  document.getElementById("forgot-password-form").style.display = "block";
+  document.getElementById("login-section").style.display = "none";
+  document.getElementById("forgot-password-section").style.display = "block";
 });
 
+// Back to Login
+document.getElementById("back-to-login").addEventListener("click", function(e){
+  e.preventDefault();
+  document.getElementById("forgot-password-section").style.display = "none";
+  document.getElementById("login-section").style.display = "block";
+});
+
+// Reset logic
 document.getElementById("reset-btn").addEventListener("click", function(){
   const email = document.getElementById("reset-email").value.trim();
   if(!email){
