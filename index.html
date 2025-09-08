@@ -201,20 +201,34 @@
             </table>
           </section>
 
+          
           <!-- REPORTS -->
-          <section id="report-section" style="display: none;">
-            <h2>Reports</h2>
-            <table class="reports-table">
-              <thead>
-                <tr><th>Metric</th><th>Value</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>Total Tenants</td><td id="report-tenant-count">0</td></tr>
-                <tr><td>Total Rent Collected</td><td id="report-rent">KSh 0</td></tr>
-                <tr><td>Outstanding Balances</td><td id="report-due">KSh 0</td></tr>
-              </tbody>
-            </table>
-          </section>
+           <section id="report-section" style="display: none;">
+                 <h2>Reports</h2>
+
+  <!-- Date Range Filter -->
+           <div class="report-filters" style="margin-bottom: 15px;">
+           <label for="report-start-date">Start Date:</label>
+            <input type="date" id="report-start-date">
+
+            <label for="report-end-date" style="margin-left: 10px;">End Date:</label>
+            <input type="date" id="report-end-date">
+
+         <button id="apply-report-filter" style="margin-left: 10px;">Apply</button>
+            </div>
+
+           <table class="reports-table">
+           <thead>
+           <tr><th>Metric</th><th>Value</th></tr>
+           </thead>
+           <tbody>
+              <tr><td>Total Tenants</td><td id="report-tenant-count">0</td></tr>
+              <tr><td>Total Rent Collected</td><td id="report-rent">KSh 0</td></tr>
+              <tr><td>Outstanding Balances</td><td id="report-due">KSh 0</td></tr>
+           </tbody>
+          </table>
+        s</section>
+
 
           <!-- MESSAGES -->
           <section id="messages-section" style="display: none;">
