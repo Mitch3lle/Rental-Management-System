@@ -120,6 +120,7 @@ document.getElementById("reset-btn").addEventListener("click", function(){
     "If this email is connected to an account, you will receive a password reset link.";
 });
 
+
 // ---------- EMAIL SIGNUP ----------
 document.getElementById("email-signup-btn").addEventListener("click", function(){
   document.getElementById("login-section").style.display = "none";
@@ -198,58 +199,66 @@ const tenants = [
 function populateTenants() {
   const tbody = document.getElementById("tenants-body");
   tbody.innerHTML = "";
-  tenants.forEach((t, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${t.name}</td>
-      <td>${t.house}</td>
-      <td>KSh ${t.rent}</td>
-      <td>${t.lastPayment}</td>
-      <td>
-        <span class="${t.paid ? 'status-paid' : 'status-unpaid'}">
-          ${t.paid ? 'Paid' : 'Unpaid'}
-        </span>
-        ${t.paid ? '' : '<button class="mark-paid-btn">Mark as Paid</button>'}
-        <button class="edit-btn">Edit</button>
-        <button class="delete-btn">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(row);
 
-    // Mark as paid
-    if (!t.paid) {
-      row.querySelector(".mark-paid-btn").onclick = () => {
-        t.paid = true;
-        populateTenants();
-        updateDashboard();
+  const searchValue = document.getElementById("tenantSearch").value.toLowerCase();
+  const filterValue = document.getElementById("tenantFilter").value;
+
+  tenants
+    .filter(t => {
+      const matchesSearch = t.name.toLowerCase().includes(searchValue);
+      const matchesFilter =
+        filterValue === "all" ||
+        (filterValue === "paid" && t.paid) ||
+        (filterValue === "unpaid" && !t.paid);
+      return matchesSearch && matchesFilter;
+    })
+    .forEach((t, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${t.name}</td>
+        <td>${t.house}</td>
+        <td>KSh ${t.rent}</td>
+        <td>${t.lastPayment}</td>
+        <td>
+          <span class="${t.paid ? 'status-paid' : 'status-unpaid'}">
+            ${t.paid ? 'Paid' : 'Unpaid'}
+          </span>
+          ${t.paid ? '' : '<button class="mark-paid-btn">Mark as Paid</button>'}
+          <button class="edit-btn">Edit</button>
+          <button class="delete-btn">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+
+      // mark as paid
+      if (!t.paid) {
+        row.querySelector(".mark-paid-btn").onclick = () => {
+          t.paid = true;
+          populateTenants();
+          updateDashboard();
+        };
+      }
+
+      // edit
+      row.querySelector(".edit-btn").onclick = () => {
+        alert(`Edit ${t.name} clicked (hook up modal later).`);
       };
-    }
 
-    // Edit tenant
-    row.querySelector(".edit-btn").onclick = () => {
-      const newName = prompt("Enter new tenant name:", t.name);
-      const newHouse = prompt("Enter new house:", t.house);
-      const newRent = prompt("Enter new rent amount:", t.rent);
-
-      if (newName && newHouse && newRent) {
-        t.name = newName;
-        t.house = newHouse;
-        t.rent = parseFloat(newRent);
-        populateTenants();
-        updateDashboard();
-      }
-    };
-
-    // Delete tenant
-    row.querySelector(".delete-btn").onclick = () => {
-      if (confirm(`Are you sure you want to delete ${t.name}?`)) {
-        tenants.splice(index, 1);
-        populateTenants();
-        updateDashboard();
-      }
-    };
-  });
+      // delete
+      row.querySelector(".delete-btn").onclick = () => {
+        if (confirm(`Delete ${t.name}?`)) {
+          tenants.splice(index, 1);
+          populateTenants();
+          updateDashboard();
+        }
+      };
+    });
 }
+
+// attach live search and filter
+document.getElementById("tenantSearch").addEventListener("input", populateTenants);
+document.getElementById("tenantFilter").addEventListener("change", populateTenants);
+
 
 populateTenants();
 
