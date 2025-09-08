@@ -667,6 +667,96 @@ button {
 .edit-btn:hover {
   background-color: #059669; /* darker green */
 }
+.tenant-controls {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
 
+.tenant-controls input,
+.tenant-controls select {
+  padding: 8px 12px;
+  border: 1px solid #16a34a; /* green-600 */
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.tenant-controls input:focus,
+.tenant-controls select:focus {
+  border-color: #22c55e; /* green-500 */
+  box-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
+}
+
+.tenant-controls input {
+  flex: 1;
+}
+
+.tenant-controls select {
+  background-color: #f0fdf4; /* light green */
+  color: #065f46; /* dark green text */
+}
+/* Forgot Password Section */
+#forgot-password-section {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 25px;
+  background: #f9fff9;
+  border: 1px solid #d1f7d1;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 128, 0, 0.1);
+}
+
+#forgot-password-section h3 {
+  text-align: center;
+  color: #065f46;
+  margin-bottom: 20px;
+}
+
+#forgot-password-section p {
+  font-size: 14px;
+  margin-bottom: 15px;
+  color: #065f46;
+}
+
+#forgot-password-section input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+#forgot-password-section input[type="email"]:focus {
+  border: 1px solid #10b981;
+  box-shadow: 0 0 4px rgba(16, 185, 129, 0.4);
+}
+
+#forgot-password-section button {
+  width: 100%;
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#forgot-password-section button:hover {
+  background: #059669;
+}
+
+#reset-message {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
 
 
