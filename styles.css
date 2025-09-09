@@ -779,7 +779,50 @@ button {
   max-height: 100vh;   /* section takes up to 80% of screen height */
   overflow-y: auto;   /* adds vertical scroll if content is taller */
   padding-right: 10px; /* prevent scrollbar overlap */
+  padding-bottom: 2rem;
 }
+/* Container for both buttons */
+.export-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center; /* center horizontally */
+  gap: 10px; /* space between buttons */
+}
+
+/* CSV button - green */
+#export-csv-btn {
+  font-weight: bold;
+  padding: 10px 15px;
+  background: #10b981; /* green */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+#export-csv-btn:hover {
+  background: #059669; /* darker green */
+}
+
+/* PDF button - blue */
+#export-pdf-btn {
+  font-weight: bold;
+  padding: 10px 15px;
+  background: #2196F3; /* blue */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+#export-pdf-btn:hover {
+  background: #1976D2; /* darker blue */
+}
+
 
 /*dashboard-section charts */
 .charts {
