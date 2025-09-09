@@ -397,6 +397,49 @@ document.addEventListener("DOMContentLoaded", () => {
       options: { responsive: true, maintainAspectRatio: false }
     });
   }
+  // Export reports to CSV
+function exportReportsToCSV() {
+  let csvContent = "data:text/csv;charset=utf-8,";
+
+  // Report totals
+  csvContent += "Metric,Value\n";
+  csvContent += `Total Tenants,${document.getElementById("report-tenant-count").textContent}\n`;
+  csvContent += `Total Rent Collected,${document.getElementById("report-rent").textContent}\n`;
+  csvContent += `Outstanding Balances,${document.getElementById("report-due").textContent}\n\n`;
+
+  // Breakdown by method
+  csvContent += "Payment Method,Amount\n";
+  csvContent += `M-Pesa,${document.getElementById("mpesa-total").textContent}\n`;
+  csvContent += `Bank,${document.getElementById("bank-total").textContent}\n`;
+  csvContent += `Cash,${document.getElementById("cash-total").textContent}\n\n`;
+
+  // Create downloadable file
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "grms_report.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Attach to pdf button
+document.getElementById("export-csv-btn").addEventListener("click", exportReportsToCSV);
+
+document.getElementById("export-pdf-btn").addEventListener("click", function () {
+  const reportSection = document.getElementById("report-section");
+
+  const opt = {
+    margin:       0.5,
+    filename:     'GRMS_Report.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(reportSection).save();
+});
+
 
   // -----------------------
   // Tenants table
