@@ -758,5 +758,20 @@ button {
   font-size: 14px;
   font-weight: bold;
 }
+#report-section {
+  padding: 20px;
+  max-height: 80vh;       /* keep it from overflowing the screen */
+  overflow-y: auto;        /* allow scrolling */
+}
 
+.report-charts {
+  margin-top: 20px;
+}
 
+.report-charts canvas {
+  width: 100% !important;
+  max-width: 600px;        /* keep charts from being too huge */
+  height: 300px !important;
+  display: block;
+  margin: 20px auto;
+}
