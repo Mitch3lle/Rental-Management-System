@@ -262,65 +262,93 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
   // Reports (uses payments[] + tenants[])
   // -----------------------
-  const filterReportBtn = $("filter-report-btn");
-  if (filterReportBtn) filterReportBtn.addEventListener("click", updateReports);
+// ======== REPORTS UPDATE ========
+let pieChartInstance = null;
+let barChartInstance = null;
 
 function updateReports() {
   const startDate = document.getElementById("report-start-date").value;
   const endDate = document.getElementById("report-end-date").value;
   const method = document.getElementById("report-method").value;
 
-  // filter payments by date range
-  let filteredPayments = payments;
+  let filtered = payments;
+
   if (startDate) {
-    filteredPayments = filteredPayments.filter(p => new Date(p.date) >= new Date(startDate));
+    filtered = filtered.filter(p => new Date(p.date) >= new Date(startDate));
   }
   if (endDate) {
-    filteredPayments = filteredPayments.filter(p => new Date(p.date) <= new Date(endDate));
+    filtered = filtered.filter(p => new Date(p.date) <= new Date(endDate));
   }
-
-  // filter by payment method
   if (method) {
-    filteredPayments = filteredPayments.filter(p => p.method === method);
+    filtered = filtered.filter(p => p.method === method);
   }
 
-  // filter tenants (paid/unpaid status based on filtered payments)
-  let filteredTenants = tenants.map(t => {
-    const hasPayment = filteredPayments.some(p => p.tenant === t.name && p.amount >= t.rent);
-    return { ...t, paid: hasPayment };
+  // Totals
+  const tenantIds = [...new Set(filtered.map(p => p.tenantId))];
+  document.getElementById("report-tenant-count").textContent = tenantIds.length;
+  const totalRent = filtered.reduce((sum, p) => sum + p.amount, 0);
+  document.getElementById("report-rent").textContent = "KSh " + totalRent;
+  const outstanding = tenants.reduce((sum, t) => {
+    const paid = filtered
+      .filter(p => p.tenantId === t.id)
+      .reduce((s, p) => s + p.amount, 0);
+    return sum + Math.max(0, t.rent - paid);
+  }, 0);
+  document.getElementById("report-due").textContent = "KSh " + outstanding;
+
+  // Breakdown by method
+  const mpesaTotal = filtered.filter(p => p.method === "M-Pesa")
+    .reduce((s, p) => s + p.amount, 0);
+  const bankTotal = filtered.filter(p => p.method === "Bank")
+    .reduce((s, p) => s + p.amount, 0);
+  const cashTotal = filtered.filter(p => p.method === "Cash")
+    .reduce((s, p) => s + p.amount, 0);
+
+  document.getElementById("mpesa-total").textContent = "KSh " + mpesaTotal;
+  document.getElementById("bank-total").textContent = "KSh " + bankTotal;
+  document.getElementById("cash-total").textContent = "KSh " + cashTotal;
+
+  // === PIE CHART (Payment Methods) ===
+  const pieCtx = document.getElementById("reportPieChart").getContext("2d");
+  if (pieChartInstance) pieChartInstance.destroy();
+  pieChartInstance = new Chart(pieCtx, {
+    type: "pie",
+    data: {
+      labels: ["M-Pesa", "Bank", "Cash"],
+      datasets: [{
+        data: [mpesaTotal, bankTotal, cashTotal],
+      }]
+    }
   });
 
-  // 1. Total tenants
-  document.getElementById("report-tenant-count").textContent = filteredTenants.length;
+  // === BAR CHART (Monthly Collections) ===
+  const monthlyTotals = {};
+  filtered.forEach(p => {
+    const month = new Date(p.date).toLocaleString("default", { month: "short" });
+    monthlyTotals[month] = (monthlyTotals[month] || 0) + p.amount;
+  });
 
-  // 2. Total rent collected
-  const collected = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
-  document.getElementById("report-rent").textContent = `KSh ${collected}`;
-
-  // 3. Outstanding balances
-  const expected = tenants.reduce((sum, t) => sum + t.rent, 0);
-  const due = expected - collected;
-  document.getElementById("report-due").textContent = `KSh ${due}`;
-
-  // 4. Breakdown by payment method
-  const mpesaTotal = filteredPayments
-    .filter(p => p.method === "M-Pesa")
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  const bankTotal = filteredPayments
-    .filter(p => p.method === "Bank")
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  const cashTotal = filteredPayments
-    .filter(p => p.method === "Cash")
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  // Update breakdown table
-  document.getElementById("mpesa-total").textContent = `KSh ${mpesaTotal}`;
-  document.getElementById("bank-total").textContent = `KSh ${bankTotal}`;
-  document.getElementById("cash-total").textContent = `KSh ${cashTotal}`;
+  const barCtx = document.getElementById("reportBarChart").getContext("2d");
+  if (barChartInstance) barChartInstance.destroy();
+  barChartInstance = new Chart(barCtx, {
+    type: "bar",
+    data: {
+      labels: Object.keys(monthlyTotals),
+      datasets: [{
+        label: "Rent Collected (KSh)",
+        data: Object.values(monthlyTotals),
+      }]
+    }
+  });
 }
 
+// Run reports immediately on tab open
+document.getElementById("reports-nav").addEventListener("click", () => {
+  showSection("report-section");
+  updateReports();
+});
+
+// Apply filters button
 document.getElementById("apply-report-filters").addEventListener("click", updateReports);
 
 
