@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 
   <title>George's Rental Management System</title>
@@ -203,55 +204,62 @@
 
           
           <!-- REPORTS -->
-           <section id="report-section" style="display: none;">
-                 <h2>Reports</h2>
+           <section id="report-section" style="display:none;">
+  <h2>Reports</h2>
 
-  <!-- Date Range Filter -->
-           <div id="report-filters">
-  <label for="report-start-date">Start Date:</label>
-  <input type="date" id="report-start-date">
+  <!-- Filters -->
+  <div id="report-filters">
+    <label for="report-start-date">Start Date:</label>
+    <input type="date" id="report-start-date">
 
-  <label for="report-end-date">End Date:</label>
-  <input type="date" id="report-end-date">
+    <label for="report-end-date">End Date:</label>
+    <input type="date" id="report-end-date">
 
-  <label for="report-method">Method:</label>
-  <select id="report-method">
-    <option value="">All</option>
-    <option value="M-Pesa">M-Pesa</option>
-    <option value="Bank">Bank</option>
-    <option value="Cash">Cash</option>
-  </select>
+    <label for="report-method">Method:</label>
+    <select id="report-method">
+      <option value="">All</option>
+      <option value="M-Pesa">M-Pesa</option>
+      <option value="Bank">Bank</option>
+      <option value="Cash">Cash</option>
+    </select>
 
-  <button id="apply-report-filters">Apply</button>
-</div>
+    <button id="apply-report-filters">Apply</button>
+  </div>
 
+  <!-- Totals Table -->
+  <table class="reports-table">
+    <thead>
+      <tr><th>Metric</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Total Tenants</td><td id="report-tenant-count">0</td></tr>
+      <tr><td>Total Rent Collected</td><td id="report-rent">KSh 0</td></tr>
+      <tr><td>Outstanding Balances</td><td id="report-due">KSh 0</td></tr>
+    </tbody>
+  </table>
 
-           <table class="reports-table">
-           <thead>
-           <tr><th>Metric</th><th>Value</th></tr>
-           </thead>
-           <tbody>
-              <tr><td>Total Tenants</td><td id="report-tenant-count">0</td></tr>
-              <tr><td>Total Rent Collected</td><td id="report-rent">KSh 0</td></tr>
-              <tr><td>Outstanding Balances</td><td id="report-due">KSh 0</td></tr>
-           </tbody>
-          </table>
-          <h3>Breakdown by Payment Method</h3>
-<table id="method-breakdown">
-  <thead>
-    <tr>
-      <th>Method</th>
-      <th>Amount (KSh)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td>M-Pesa</td><td id="mpesa-total">0</td></tr>
-    <tr><td>Bank</td><td id="bank-total">0</td></tr>
-    <tr><td>Cash</td><td id="cash-total">0</td></tr>
-  </tbody>
-</table>
+  <!-- Breakdown -->
+  <h3>Breakdown by Payment Method</h3>
+  <table id="method-breakdown">
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>Amount (KSh)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>M-Pesa</td><td id="mpesa-total">KSh 0</td></tr>
+      <tr><td>Bank</td><td id="bank-total">KSh 0</td></tr>
+      <tr><td>Cash</td><td id="cash-total">KSh 0</td></tr>
+    </tbody>
+  </table>
 
-        </section>
+  <!-- Chart placeholders (we'll wire them later) -->
+  <h3>Visuals</h3>
+  <canvas id="reportPieChart"></canvas>
+  <canvas id="reportBarChart"></canvas>
+</section>
+
 
 
           <!-- MESSAGES -->
