@@ -265,35 +265,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterReportBtn = $("filter-report-btn");
   if (filterReportBtn) filterReportBtn.addEventListener("click", updateReports);
 
-  function updateReports() {
-    const startDate = $("report-start") ? $("report-start").value : "";
-    const endDate = $("report-end") ? $("report-end").value : "";
+function updateReports() {
+  const startDate = document.getElementById("report-start-date").value;
+  const endDate = document.getElementById("report-end-date").value;
+  const method = document.getElementById("report-method").value;
 
-    let filteredPayments = payments.slice(); // copy
-
-    if (startDate || endDate) {
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
-      filteredPayments = payments.filter(p => {
-        const payDate = new Date(p.date);
-        if (start && payDate < start) return false;
-        if (end && payDate > end) return false;
-        return true;
-      });
-    }
-
-    // Total tenants (always from tenants array)
-    if ($("report-tenant-count")) $("report-tenant-count").textContent = tenants.length;
-
-    // Total collected from filtered payments
-    const collected = filteredPayments.reduce((sum, p) => sum + Number(p.amount), 0);
-    if ($("report-rent")) $("report-rent").textContent = formatKsh(collected);
-
-    // Outstanding: expected total rent - collected
-    const expected = tenants.reduce((sum, t) => sum + Number(t.rent), 0);
-    const due = expected - collected;
-    if ($("report-due")) $("report-due").textContent = formatKsh(Math.max(0, due));
+  // filter payments by date range
+  let filteredPayments = payments;
+  if (startDate) {
+    filteredPayments = filteredPayments.filter(p => new Date(p.date) >= new Date(startDate));
   }
+  if (endDate) {
+    filteredPayments = filteredPayments.filter(p => new Date(p.date) <= new Date(endDate));
+  }
+
+  // filter by payment method
+  if (method) {
+    filteredPayments = filteredPayments.filter(p => p.method === method);
+  }
+
+  // filter tenants (paid/unpaid status based on filtered payments)
+  let filteredTenants = tenants.map(t => {
+    const hasPayment = filteredPayments.some(p => p.tenant === t.name && p.amount >= t.rent);
+    return { ...t, paid: hasPayment };
+  });
+
+  // 1. Total tenants
+  document.getElementById("report-tenant-count").textContent = filteredTenants.length;
+
+  // 2. Total rent collected
+  const collected = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+  document.getElementById("report-rent").textContent = `KSh ${collected}`;
+
+  // 3. Outstanding balances
+  const expected = tenants.reduce((sum, t) => sum + t.rent, 0);
+  const due = expected - collected;
+  document.getElementById("report-due").textContent = `KSh ${due}`;
+
+  // 4. Breakdown by payment method
+  const mpesaTotal = filteredPayments
+    .filter(p => p.method === "M-Pesa")
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const bankTotal = filteredPayments
+    .filter(p => p.method === "Bank")
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const cashTotal = filteredPayments
+    .filter(p => p.method === "Cash")
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  // Update breakdown table
+  document.getElementById("mpesa-total").textContent = `KSh ${mpesaTotal}`;
+  document.getElementById("bank-total").textContent = `KSh ${bankTotal}`;
+  document.getElementById("cash-total").textContent = `KSh ${cashTotal}`;
+}
+
+document.getElementById("apply-report-filters").addEventListener("click", updateReports);
+
 
   // -----------------------
   // Tenants table
@@ -349,11 +378,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // edit (placeholder)
         const editBtn = row.querySelector(".edit-btn");
-        if (editBtn) {
-          editBtn.addEventListener("click", () => {
-            alert(`Edit ${t.name} clicked (modal hookup later).`);
-          });
-        }
+      // edit
+    row.querySelector(".edit-btn").onclick = () => {
+            // Replace row content with editable inputs
+  row.innerHTML = `
+    <td><input type="text" value="${t.name}" id="edit-name-${index}"></td>
+    <td><input type="text" value="${t.house}" id="edit-house-${index}"></td>
+    <td><input type="number" value="${t.rent}" id="edit-rent-${index}"></td>
+    <td><input type="date" value="${t.lastPayment}" id="edit-date-${index}"></td>
+    <td>
+      <button class="save-btn">Save</button>
+      <button class="cancel-btn">Cancel</button>
+    </td>
+  `;
+
+  // Save changes
+  row.querySelector(".save-btn").onclick = () => {
+    t.name = document.getElementById(`edit-name-${index}`).value;
+    t.house = document.getElementById(`edit-house-${index}`).value;
+    t.rent = parseInt(document.getElementById(`edit-rent-${index}`).value);
+    t.lastPayment = document.getElementById(`edit-date-${index}`).value;
+
+    populateTenants();
+    updateDashboard();
+  };
+
+  // Cancel edit
+  row.querySelector(".cancel-btn").onclick = () => {
+    populateTenants(); // just refreshes row back to original
+  };
+};
+
 
         // delete
         const delBtn = row.querySelector(".delete-btn");
