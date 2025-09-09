@@ -207,15 +207,24 @@
                  <h2>Reports</h2>
 
   <!-- Date Range Filter -->
-           <div class="report-filters" style="margin-bottom: 15px;">
-           <label for="report-start-date">Start Date:</label>
-            <input type="date" id="report-start-date">
+           <div id="report-filters">
+  <label for="report-start-date">Start Date:</label>
+  <input type="date" id="report-start-date">
 
-            <label for="report-end-date" style="margin-left: 10px;">End Date:</label>
-            <input type="date" id="report-end-date">
+  <label for="report-end-date">End Date:</label>
+  <input type="date" id="report-end-date">
 
-         <button id="apply-report-filter" style="margin-left: 10px;">Apply</button>
-            </div>
+  <label for="report-method">Method:</label>
+  <select id="report-method">
+    <option value="">All</option>
+    <option value="M-Pesa">M-Pesa</option>
+    <option value="Bank">Bank</option>
+    <option value="Cash">Cash</option>
+  </select>
+
+  <button id="apply-report-filters">Apply</button>
+</div>
+
 
            <table class="reports-table">
            <thead>
@@ -227,7 +236,22 @@
               <tr><td>Outstanding Balances</td><td id="report-due">KSh 0</td></tr>
            </tbody>
           </table>
-        s</section>
+          <h3>Breakdown by Payment Method</h3>
+<table id="method-breakdown">
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Amount (KSh)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>M-Pesa</td><td id="mpesa-total">0</td></tr>
+    <tr><td>Bank</td><td id="bank-total">0</td></tr>
+    <tr><td>Cash</td><td id="cash-total">0</td></tr>
+  </tbody>
+</table>
+
+        </section>
 
 
           <!-- MESSAGES -->
