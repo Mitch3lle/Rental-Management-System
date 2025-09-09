@@ -1,4 +1,4 @@
-// script.js - corrected & defensive (replace your existing file with this)
+// script.js - single file replacement (copy & paste over your existing file)
 
 document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
@@ -19,7 +19,27 @@ document.addEventListener("DOMContentLoaded", () => {
   // Helpers
   // -----------------------
   const $ = id => document.getElementById(id);
-  const formatKsh = n => `KSh ${n.toLocaleString()}`;
+  const formatKsh = n => `KSh ${Number(n || 0).toLocaleString()}`;
+
+  // group payments by month (short month names) and return ordered object
+  function groupPaymentsByMonth(paymentList) {
+    const map = {};
+    paymentList.forEach(p => {
+      try {
+        const date = new Date(p.date);
+        const month = date.toLocaleString("default", { month: "short", year: "numeric" });
+        map[month] = (map[month] || 0) + Number(p.amount || 0);
+      } catch (e) {
+        // ignore bad dates
+      }
+    });
+    // sort keys by date order
+    const entries = Object.keys(map)
+      .map(k => ({ k, d: new Date(k) })) // Note: Date parsing from "Mon YYYY" might be locale-dependent but usually OK for our short labels
+      .sort((a, b) => a.d - b.d)
+      .map(x => [x.k, map[x.k]]);
+    return Object.fromEntries(entries);
+  }
 
   // Add a payment entry and keep tenant state in sync
   function addPayment(tenantName, amount, date = null, method = "Manual") {
@@ -56,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           showError("Invalid username or password.");
         }
-      }, 1500);
+      }, 800);
     });
   }
 
@@ -83,12 +103,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if ($("otp-error")) $("otp-error").style.display = "none";
         if ($("otp-section")) $("otp-section").style.display = "none";
 
-        // Show dashboard
+        // Show dashboard (outer section visible + inner content)
         if ($("login-section")) $("login-section").style.display = "none";
         if ($("dashboard-section")) $("dashboard-section").style.display = "block";
         showSection("dashboard-content");
         updateDashboard();
-        renderCharts();
+        renderDashboardCharts(); // draw dashboard charts
       } else {
         const otpError = $("otp-error");
         if (otpError) {
@@ -104,7 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
   document.querySelectorAll(".toggle-password").forEach(icon => {
     icon.addEventListener("click", function () {
-      // find the sibling input inside .password-wrapper
       const wrapper = this.closest(".password-wrapper");
       if (!wrapper) return;
       const input = wrapper.querySelector("input[type='password'], input[type='text']");
@@ -200,6 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Section switching (sidebar)
   // -----------------------
   function showSection(id) {
+    // hide inner content sections (the ones inside .main)
     const sections = [
       "dashboard-content",
       "tenant-section",
@@ -217,12 +237,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Attach nav items safely
   const navDashboard = $("nav-dashboard");
-  if (navDashboard) navDashboard.onclick = () => showSection("dashboard-content");
+  if (navDashboard) navDashboard.onclick = () => {
+    // ensure outer dashboard-section is visible
+    if ($("dashboard-section")) $("dashboard-section").style.display = "block";
+    showSection("dashboard-content");
+    updateDashboard();
+    renderDashboardCharts();
+  };
 
   const navTenants = $("nav-tenants");
   if (navTenants) navTenants.onclick = () => {
     showSection("tenant-section");
-    // repopulate to ensure latest
     populateTenants();
   };
 
@@ -240,8 +265,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const navReports = $("nav-reports");
   if (navReports) {
     navReports.onclick = () => {
+      // ensure outer dashboard-section is visible (we're inside the dashboard area)
+      if ($("dashboard-section")) $("dashboard-section").style.display = "block";
       showSection("report-section");
-      updateReports(); // default load without filters
+      updateReports(); // load reports and charts
     };
   }
 
@@ -254,103 +281,122 @@ document.addEventListener("DOMContentLoaded", () => {
     tbody.innerHTML = "";
     payments.forEach(p => {
       const row = document.createElement("tr");
-      row.innerHTML = `<td>${p.tenant}</td><td>KSh ${p.amount}</td><td>${p.date}</td><td>${p.method}</td>`;
+      row.innerHTML = `<td>${p.tenant}</td><td>KSh ${Number(p.amount).toLocaleString()}</td><td>${p.date}</td><td>${p.method}</td>`;
       tbody.appendChild(row);
     });
   }
 
   // -----------------------
-  // Reports (uses payments[] + tenants[])
+  // REPORTS (uses payments[] + tenants[])
   // -----------------------
-// ======== REPORTS UPDATE ========
-let pieChartInstance = null;
-let barChartInstance = null;
+  let pieChartInstance = null;
+  let barChartInstance = null;
 
-function updateReports() {
-  const startDate = document.getElementById("report-start-date").value;
-  const endDate = document.getElementById("report-end-date").value;
-  const method = document.getElementById("report-method").value;
+  function updateReports() {
+    const startDate = $("report-start-date") ? $("report-start-date").value : "";
+    const endDate = $("report-end-date") ? $("report-end-date").value : "";
+    const method = $("report-method") ? $("report-method").value : "";
 
-  let filtered = payments;
+    let filtered = payments.slice(); // copy
 
-  if (startDate) {
-    filtered = filtered.filter(p => new Date(p.date) >= new Date(startDate));
-  }
-  if (endDate) {
-    filtered = filtered.filter(p => new Date(p.date) <= new Date(endDate));
-  }
-  if (method) {
-    filtered = filtered.filter(p => p.method === method);
-  }
-
-  // Totals
-  const tenantIds = [...new Set(filtered.map(p => p.tenantId))];
-  document.getElementById("report-tenant-count").textContent = tenantIds.length;
-  const totalRent = filtered.reduce((sum, p) => sum + p.amount, 0);
-  document.getElementById("report-rent").textContent = "KSh " + totalRent;
-  const outstanding = tenants.reduce((sum, t) => {
-    const paid = filtered
-      .filter(p => p.tenantId === t.id)
-      .reduce((s, p) => s + p.amount, 0);
-    return sum + Math.max(0, t.rent - paid);
-  }, 0);
-  document.getElementById("report-due").textContent = "KSh " + outstanding;
-
-  // Breakdown by method
-  const mpesaTotal = filtered.filter(p => p.method === "M-Pesa")
-    .reduce((s, p) => s + p.amount, 0);
-  const bankTotal = filtered.filter(p => p.method === "Bank")
-    .reduce((s, p) => s + p.amount, 0);
-  const cashTotal = filtered.filter(p => p.method === "Cash")
-    .reduce((s, p) => s + p.amount, 0);
-
-  document.getElementById("mpesa-total").textContent = "KSh " + mpesaTotal;
-  document.getElementById("bank-total").textContent = "KSh " + bankTotal;
-  document.getElementById("cash-total").textContent = "KSh " + cashTotal;
-
-  // === PIE CHART (Payment Methods) ===
-  const pieCtx = document.getElementById("reportPieChart").getContext("2d");
-  if (pieChartInstance) pieChartInstance.destroy();
-  pieChartInstance = new Chart(pieCtx, {
-    type: "pie",
-    data: {
-      labels: ["M-Pesa", "Bank", "Cash"],
-      datasets: [{
-        data: [mpesaTotal, bankTotal, cashTotal],
-      }]
+    if (startDate) {
+      filtered = filtered.filter(p => new Date(p.date) >= new Date(startDate));
     }
-  });
-
-  // === BAR CHART (Monthly Collections) ===
-  const monthlyTotals = {};
-  filtered.forEach(p => {
-    const month = new Date(p.date).toLocaleString("default", { month: "short" });
-    monthlyTotals[month] = (monthlyTotals[month] || 0) + p.amount;
-  });
-
-  const barCtx = document.getElementById("reportBarChart").getContext("2d");
-  if (barChartInstance) barChartInstance.destroy();
-  barChartInstance = new Chart(barCtx, {
-    type: "bar",
-    data: {
-      labels: Object.keys(monthlyTotals),
-      datasets: [{
-        label: "Rent Collected (KSh)",
-        data: Object.values(monthlyTotals),
-      }]
+    if (endDate) {
+      filtered = filtered.filter(p => new Date(p.date) <= new Date(endDate));
     }
-  });
-}
+    if (method) {
+      filtered = filtered.filter(p => p.method === method);
+    }
 
-// Run reports immediately on tab open
-document.getElementById("reports-nav").addEventListener("click", () => {
-  showSection("report-section");
-  updateReports();
-});
+    // Totals
+    // Total tenants (from tenants list — but count tenants who appear in filtered payments OR all tenants depending on desired behaviour)
+    // We'll show number of tenants in the system (since that's what your UI labeled), and also use payments to calculate collected.
+    const totalTenants = tenants.length;
+    const totalCollected = filtered.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
-// Apply filters button
-document.getElementById("apply-report-filters").addEventListener("click", updateReports);
+    // Outstanding: compute expected (sum of rents for all tenants) minus collected in the filtered window
+    const expected = tenants.reduce((sum, t) => sum + Number(t.rent || 0), 0);
+    const due = Math.max(0, expected - totalCollected);
 
+    if ($("report-tenant-count")) $("report-tenant-count").textContent = totalTenants;
+    if ($("report-rent")) $("report-rent").textContent = formatKsh(totalCollected);
+    if ($("report-due")) $("report-due").textContent = formatKsh(due);
+
+    // Breakdown by method
+    const mpesaTotal = filtered.filter(p => p.method === "M-Pesa").reduce((s, p) => s + p.amount, 0);
+    const bankTotal = filtered.filter(p => p.method === "Bank").reduce((s, p) => s + p.amount, 0);
+    const cashTotal = filtered.filter(p => p.method === "Cash").reduce((s, p) => s + p.amount, 0);
+
+    if ($("mpesa-total")) $("mpesa-total").textContent = formatKsh(mpesaTotal);
+    if ($("bank-total")) $("bank-total").textContent = formatKsh(bankTotal);
+    if ($("cash-total")) $("cash-total").textContent = formatKsh(cashTotal);
+
+    // Prepare data for charts
+    const methodTotals = { mpesa: mpesaTotal, bank: bankTotal, cash: cashTotal };
+    const monthlyTotals = groupPaymentsByMonth(filtered);
+
+    // draw charts (defensive)
+    if ($("reportPieChart") && $("reportBarChart")) {
+      updateReportCharts(methodTotals, monthlyTotals);
+    }
+  }
+
+  // safe hookup for Apply button
+  const applyReportsBtn = $("apply-report-filters");
+  if (applyReportsBtn) applyReportsBtn.addEventListener("click", updateReports);
+
+  // Reset filters button (if you later add it)
+  const resetReportsBtn = $("reset-report-filters");
+  if (resetReportsBtn) {
+    resetReportsBtn.addEventListener("click", () => {
+      if ($("report-start-date")) $("report-start-date").value = "";
+      if ($("report-end-date")) $("report-end-date").value = "";
+      if ($("report-method")) $("report-method").value = "";
+      updateReports();
+    });
+  }
+
+  // Reports chart creation / destroy
+  function updateReportCharts(methodTotals, monthlyTotals) {
+    const pieEl = $("reportPieChart");
+    const barEl = $("reportBarChart");
+    if (!pieEl || !barEl) return;
+
+    const pieCtx = pieEl.getContext("2d");
+    const barCtx = barEl.getContext("2d");
+
+    try { if (pieChartInstance) pieChartInstance.destroy(); } catch (e) {}
+    try { if (barChartInstance) barChartInstance.destroy(); } catch (e) {}
+
+    pieChartInstance = new Chart(pieCtx, {
+      type: "pie",
+      data: {
+        labels: ["M-Pesa", "Bank", "Cash"],
+        datasets: [{
+          data: [methodTotals.mpesa, methodTotals.bank, methodTotals.cash],
+          backgroundColor: ["#4CAF50", "#2196F3", "#FF9800"]
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    const labels = Object.keys(monthlyTotals);
+    const values = Object.values(monthlyTotals);
+
+    barChartInstance = new Chart(barCtx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "Rent Collected (KSh)",
+          data: values,
+          backgroundColor: "#2196F3"
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  }
 
   // -----------------------
   // Tenants table
@@ -379,7 +425,7 @@ document.getElementById("apply-report-filters").addEventListener("click", update
         row.innerHTML = `
           <td>${t.name}</td>
           <td>${t.house}</td>
-          <td>KSh ${t.rent}</td>
+          <td>KSh ${Number(t.rent).toLocaleString()}</td>
           <td>${t.lastPayment || ""}</td>
           <td>
             <span class="${t.paid ? 'status-paid' : 'status-unpaid'}">
@@ -404,39 +450,35 @@ document.getElementById("apply-report-filters").addEventListener("click", update
           });
         }
 
-        // edit (placeholder)
+        // edit (in-place)
         const editBtn = row.querySelector(".edit-btn");
-      // edit
-    row.querySelector(".edit-btn").onclick = () => {
-            // Replace row content with editable inputs
-  row.innerHTML = `
-    <td><input type="text" value="${t.name}" id="edit-name-${index}"></td>
-    <td><input type="text" value="${t.house}" id="edit-house-${index}"></td>
-    <td><input type="number" value="${t.rent}" id="edit-rent-${index}"></td>
-    <td><input type="date" value="${t.lastPayment}" id="edit-date-${index}"></td>
-    <td>
-      <button class="save-btn">Save</button>
-      <button class="cancel-btn">Cancel</button>
-    </td>
-  `;
+        if (editBtn) {
+          editBtn.addEventListener("click", () => {
+            row.innerHTML = `
+              <td><input type="text" value="${t.name}" id="edit-name-${index}"></td>
+              <td><input type="text" value="${t.house}" id="edit-house-${index}"></td>
+              <td><input type="number" value="${t.rent}" id="edit-rent-${index}"></td>
+              <td><input type="date" value="${t.lastPayment}" id="edit-date-${index}"></td>
+              <td>
+                <button class="save-btn">Save</button>
+                <button class="cancel-btn">Cancel</button>
+              </td>
+            `;
 
-  // Save changes
-  row.querySelector(".save-btn").onclick = () => {
-    t.name = document.getElementById(`edit-name-${index}`).value;
-    t.house = document.getElementById(`edit-house-${index}`).value;
-    t.rent = parseInt(document.getElementById(`edit-rent-${index}`).value);
-    t.lastPayment = document.getElementById(`edit-date-${index}`).value;
+            row.querySelector(".save-btn").onclick = () => {
+              t.name = document.getElementById(`edit-name-${index}`).value;
+              t.house = document.getElementById(`edit-house-${index}`).value;
+              t.rent = parseInt(document.getElementById(`edit-rent-${index}`).value, 10) || t.rent;
+              t.lastPayment = document.getElementById(`edit-date-${index}`).value;
+              populateTenants();
+              updateDashboard();
+            };
 
-    populateTenants();
-    updateDashboard();
-  };
-
-  // Cancel edit
-  row.querySelector(".cancel-btn").onclick = () => {
-    populateTenants(); // just refreshes row back to original
-  };
-};
-
+            row.querySelector(".cancel-btn").onclick = () => {
+              populateTenants();
+            };
+          });
+        }
 
         // delete
         const delBtn = row.querySelector(".delete-btn");
@@ -444,7 +486,6 @@ document.getElementById("apply-report-filters").addEventListener("click", update
           delBtn.addEventListener("click", () => {
             if (confirm(`Delete ${t.name}?`)) {
               tenants.splice(index, 1);
-              // Also remove payments for that tenant (optional)
               payments = payments.filter(p => p.tenant !== t.name);
               populateTenants();
               updateDashboard();
@@ -466,10 +507,8 @@ document.getElementById("apply-report-filters").addEventListener("click", update
   // Dashboard
   // -----------------------
   function updateDashboard() {
-    // total collected from payments
-    const collected = payments.reduce((sum, p) => sum + Number(p.amount), 0);
-    // outstanding = expected - collected
-    const expected = tenants.reduce((sum, t) => sum + Number(t.rent), 0);
+    const collected = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    const expected = tenants.reduce((sum, t) => sum + Number(t.rent || 0), 0);
     const due = Math.max(0, expected - collected);
 
     if ($("tenant-count")) $("tenant-count").textContent = tenants.length;
@@ -518,50 +557,60 @@ document.getElementById("apply-report-filters").addEventListener("click", update
   let paymentsChart = null;
   let balanceChart = null;
 
-  function renderCharts() {
-    // destroy if exist
-    if (paymentsChart) {
-      try { paymentsChart.destroy(); } catch (e) {}
-      paymentsChart = null;
-    }
-    if (balanceChart) {
-      try { balanceChart.destroy(); } catch (e) {}
-      balanceChart = null;
+  function renderDashboardCharts() {
+    // destruction if exist
+    try { if (paymentsChart) paymentsChart.destroy(); } catch (e) {}
+    try { if (balanceChart) balanceChart.destroy(); } catch (e) {}
+    paymentsChart = null;
+    balanceChart = null;
+
+    const paymentsEl = $("paymentsChart");
+    const balanceEl = $("balanceChart");
+
+    // build monthly series from payments (dashboard)
+    const monthly = groupPaymentsByMonth(payments);
+    const labels = Object.keys(monthly);
+    const values = Object.values(monthly);
+
+    // balance trend: simple cumulative outstanding over the months
+    // compute expected monthly = sum of rents (assuming one period) — for visualization we produce a decreasing outstanding as payments accumulate
+    const runningOutstanding = [];
+    let cumulativeCollected = 0;
+    for (let i = 0; i < values.length; i++) {
+      cumulativeCollected += values[i];
+      const expectedTotal = tenants.reduce((s, t) => s + t.rent, 0);
+      runningOutstanding.push(Math.max(0, expectedTotal - cumulativeCollected));
     }
 
-    const paymentsCtx = $("paymentsChart");
-    const balanceCtx = $("balanceChart");
-
-    // Example static charts - you can later replace data with payments[] based data
-    if (paymentsCtx) {
-      paymentsChart = new Chart(paymentsCtx, {
+    if (paymentsEl) {
+      paymentsChart = new Chart(paymentsEl, {
         type: 'bar',
         data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+          labels: labels.length ? labels : ['No Data'],
           datasets: [{
             label: 'Payments',
-            data: [8000, 12000, 7500, 10000, 6000],
+            data: values.length ? values : [0],
             backgroundColor: '#10b981'
           }]
         },
-        options: { responsive: true }
+        options: { responsive: true, maintainAspectRatio: false }
       });
     }
 
-    if (balanceCtx) {
-      balanceChart = new Chart(balanceCtx, {
+    if (balanceEl) {
+      balanceChart = new Chart(balanceEl, {
         type: 'line',
         data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+          labels: labels.length ? labels : ['No Data'],
           datasets: [{
-            label: 'Balance',
-            data: [30000, 27000, 24000, 21000],
+            label: 'Outstanding Balance',
+            data: runningOutstanding.length ? runningOutstanding : [tenants.reduce((s,t)=>s+t.rent,0)],
             borderColor: '#ef4444',
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
             fill: true
           }]
         },
-        options: { responsive: true }
+        options: { responsive: true, maintainAspectRatio: false }
       });
     }
   }
@@ -593,9 +642,16 @@ document.getElementById("apply-report-filters").addEventListener("click", update
   populateTenants();
   populatePaymentsTable();
   updateDashboard();
-  // Do not render charts until dashboard is shown (but it's safe to render now)
-  renderCharts();
+  // Render dashboard charts initially if dashboard is visible (safe)
+  renderDashboardCharts();
 
   // Expose a couple helpers to window for debugging if needed (optional)
-  window.__grpms = { tenants, payments, updateReports, populateTenants, updateDashboard, renderCharts };
+  window.__grpms = {
+    tenants,
+    payments,
+    updateReports,
+    populateTenants,
+    updateDashboard,
+    renderDashboardCharts
+  };
 }); // DOMContentLoaded end
