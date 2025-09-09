@@ -758,20 +758,43 @@ button {
   font-size: 14px;
   font-weight: bold;
 }
-#report-section {
-  padding: 20px;
-  max-height: 80vh;       /* keep it from overflowing the screen */
-  overflow-y: auto;        /* allow scrolling */
-}
-
+/*report-section charts*/
 .report-charts {
+  display: flex;
+  gap: 20px;
   margin-top: 20px;
 }
 
-.report-charts canvas {
+.report-chart-container {
+  flex: 1;
+  min-height: 300px;
+  max-height: 400px;
+}
+
+.report-chart-container canvas {
   width: 100% !important;
-  max-width: 600px;        /* keep charts from being too huge */
-  height: 300px !important;
-  display: block;
-  margin: 20px auto;
+  height: 100% !important;
+}
+#report-section {
+  max-height: 100vh;   /* section takes up to 80% of screen height */
+  overflow-y: auto;   /* adds vertical scroll if content is taller */
+  padding-right: 10px; /* prevent scrollbar overlap */
+}
+
+/*dashboard-section charts */
+.charts {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.chart-container {
+  flex: 1;
+  min-height: 300px;  /* ensures visibility */
+  max-height: 400px;  /* prevents scrolling */
+}
+
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
