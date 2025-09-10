@@ -660,23 +660,166 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
   // -----------------------
   // Messages
   // -----------------------
-  const messageForm = $("messageForm");
-  if (messageForm) {
-    const messageDisplay = $("messageDisplay");
-    messageForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const input = $("messageInput");
-      if (!input) return;
-      const message = input.value.trim();
-      if (message && messageDisplay) {
-        const p = document.createElement("p");
-        p.textContent = `Landlord: ${message}`;
-        messageDisplay.appendChild(p);
-        input.value = "";
-        messageDisplay.scrollTop = messageDisplay.scrollHeight;
+ // ================== MESSAGES SECTION ==================
+// =======================
+// Messages Section Script
+// =======================
+
+// DOM references
+const inbox = document.getElementById("inbox");
+const outbox = document.getElementById("outbox");
+const messageForm = document.getElementById("messageForm");
+const messageInput = document.getElementById("messageInput");
+const searchMessages = document.getElementById("searchMessages");
+const newMessageCount = document.getElementById("newMessageCount"); // sidebar badge
+
+// Mock data store
+let inboxMessages = [];
+let outboxMessages = [];
+let unreadCount = 0;
+
+// =======================
+// Functions
+// =======================
+
+// Switch tabs (Inbox / Outbox)
+function showMessages(tab) {
+  if (tab === "inbox") {
+    inbox.style.display = "block";
+    outbox.style.display = "none";
+    document.getElementById("inboxBtn").classList.add("active");
+    document.getElementById("outboxBtn").classList.remove("active");
+  } else {
+    inbox.style.display = "none";
+    outbox.style.display = "block";
+    document.getElementById("outboxBtn").classList.add("active");
+    document.getElementById("inboxBtn").classList.remove("active");
+  }
+}
+
+// Render messages into container
+function renderMessages(listElement, messages, isInbox = false) {
+  listElement.innerHTML = "";
+
+  if (messages.length === 0) {
+    const emptyMsg = document.createElement("p");
+    emptyMsg.className = "empty-placeholder";
+    emptyMsg.textContent = "No messages yet.";
+    listElement.appendChild(emptyMsg);
+    return;
+  }
+
+  messages.forEach((msg, index) => {
+    const item = document.createElement("div");
+    item.className = "message-item" + (msg.unread ? " unread" : "");
+
+    item.innerHTML = `
+      <strong>${isInbox ? "From: " + msg.sender : "To: " + msg.receiver}</strong>
+      <p>${msg.content}</p>
+      <span class="date">${msg.date}</span>
+      <button class="delete-btn" onclick="deleteMessage(${index}, ${isInbox})">🗑</button>
+    `;
+
+    // Mark as read when clicked
+    item.addEventListener("click", () => {
+      if (isInbox && msg.unread) {
+        msg.unread = false;
+        unreadCount--;
+        updateBadge();
+        renderMessages(listElement, messages, isInbox);
       }
     });
+
+    listElement.appendChild(item);
+  });
+}
+
+// Delete message
+function deleteMessage(index, isInbox) {
+  if (isInbox) {
+    inboxMessages.splice(index, 1);
+    renderMessages(inbox, inboxMessages, true);
+  } else {
+    outboxMessages.splice(index, 1);
+    renderMessages(outbox, outboxMessages, false);
   }
+}
+
+// Update sidebar badge
+function updateBadge() {
+  if (newMessageCount) {
+    newMessageCount.textContent = unreadCount > 0 ? unreadCount : "";
+  }
+}
+
+// =======================
+// Event Listeners
+// =======================
+
+// Tabs
+document.getElementById("inboxBtn").addEventListener("click", () => showMessages("inbox"));
+document.getElementById("outboxBtn").addEventListener("click", () => showMessages("outbox"));
+
+// Handle sending messages
+messageForm.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const message = messageInput.value.trim();
+  const sender = senderRole.value; // Get selected role
+  if (!message) return;
+
+  // Determine receiver
+  const receiver = sender === "Landlord" ? "Tenant" : "Landlord";
+
+  // Create new message object
+  const newMsg = {
+    sender: sender,
+    receiver: receiver,
+    content: message,
+    date: new Date().toLocaleString(),
+    unread: true
+  };
+
+  // Push to outbox (for sender) and inbox (for receiver)
+  outboxMessages.push({ ...newMsg, unread: false });
+  inboxMessages.push({ ...newMsg });
+
+  // Update unread count only if the receiver is "me"
+  if (receiver === "Landlord") {
+    unreadCount++;
+    updateBadge();
+  }
+
+  // Re-render
+  renderMessages(outbox, outboxMessages, false);
+  renderMessages(inbox, inboxMessages, true);
+
+  // Reset form
+  messageInput.value = "";
+
+  // Switch to Outbox tab automatically
+  showMessages("outbox");
+});
+
+
+// Search filter
+searchMessages.addEventListener("input", () => {
+  const query = searchMessages.value.toLowerCase();
+  const filteredInbox = inboxMessages.filter(m => m.content.toLowerCase().includes(query));
+  const filteredOutbox = outboxMessages.filter(m => m.content.toLowerCase().includes(query));
+
+  renderMessages(inbox, filteredInbox, true);
+  renderMessages(outbox, filteredOutbox, false);
+});
+
+// =======================
+// Init
+// =======================
+showMessages("inbox");
+renderMessages(inbox, inboxMessages, true);
+renderMessages(outbox, outboxMessages, false);
+updateBadge();
+
 
   // -----------------------
   // Initialize UI state
