@@ -113,16 +113,19 @@
     <section id="dashboard-section" style="display: none;">
       <div class="layout">
         <!-- Sidebar -->
-        <div class="sidebar">
-          <h2>GRPMS</h2>
-          <ul>
-            <li id="nav-dashboard">Dashboard</li>
-            <li id="nav-tenants">Current Tenants</li>
-            <li id="nav-payments">Payments</li>
-            <li id="nav-reports">Reports</li>
-            <li id="nav-messages">Messages</li>
-          </ul>
-        </div>
+<div class="sidebar">
+  <h2>GRPMS</h2>
+  <ul>
+    <li id="nav-dashboard">Dashboard</li>
+    <li id="nav-tenants">Current Tenants</li>
+    <li id="nav-payments">Payments</li>
+    <li id="nav-reports">Reports</li>
+    <li id="nav-messages">
+      ✉Messages <span id="newMessageCount" class="badge"></span>
+    </li>
+  </ul>
+</div>
+
         
 
 
@@ -279,23 +282,49 @@
 
 
           <!-- MESSAGES -->
-          <section id="messages-section" style="display: none;">
-            <h2>Tenant Communication</h2>
-            <div class="messages-container">
-              <div class="messages-display" id="messageDisplay">
-                <!-- Messages will appear here -->
-              </div>
-              <form id="messageForm">
-                <label for="messageInput">Send Message to Tenants:</label>
-                <textarea id="messageInput" rows="3" placeholder="Type your message here..." required></textarea>
-                <button type="submit">Send</button>
-              </form>
-            </div>
-          </section>
+         <!-- Messages Section -->
+<section id="messages-section" style="display: none;">
+  <h2>Tenant Communication</h2>
 
-        </div> <!-- End Main -->
-      </div> <!-- End Layout -->
-    </section>
+  <!-- Tabs -->
+  <div class="messages-tabs">
+    <button id="inboxBtn" class="tab-btn active">Inbox</button>
+    <button  id="outboxBtn"  class="tab-btn">Outbox</button>
+  </div>
+
+  <!-- Search -->
+  <div class="messages-search">
+    <input type="text" id="searchMessages" placeholder="Search messages...">
+  </div>
+
+  <!-- Inbox -->
+  <div id="inbox" class="messages-list">
+    <!-- Messages will load here -->
+  </div>
+
+  <!-- Outbox -->
+  <div id="outbox" class="messages-list" style="display:none;">
+    <!-- Messages will load here -->
+  </div>
+
+  <!-- Compose Form -->
+<!-- Compose Form -->
+<form id="messageForm" class="compose-form">
+  <label id="messageLabel" for="messageInput">Compose Message:</label>
+  <textarea id="messageInput" rows="3" placeholder="Type your message here..." required></textarea>
+
+  <!-- Role selector -->
+  <label for="senderRole">I am:</label>
+  <select id="senderRole">
+    <option value="Landlord">Landlord</option>
+    <option value="Tenant">Tenant</option>
+  </select>
+
+  <button type="submit">Send</button>
+</form>
+
+</section>
+
   </main>
 
   <!-- MODAL -->
