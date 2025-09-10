@@ -579,57 +579,136 @@ button {
 .status-unpaid { color: red; font-weight: bold; }
 
 /* MESSAGES SECTION */
-.messages-container {
-  background-color: #ffffff;
+
+/* ===== Messages Section ===== */
+#messages-section {
+  background: #f8fff8; /* lightest green tint */
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  margin-top: 20px;
-  width: 100%;
-  max-width: 800px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.messages-display {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background-color: #f9f9f9;
-  padding: 15px;
-  height: 200px;
-  overflow-y: auto;
-  margin-bottom: 20px;
+#messages-section h2 {
+  color: #1b5e20;
+  margin-bottom: 15px;
 }
 
-.messages-display p {
-  background-color: #e0f2f1;
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  color: #065f46;
-}
-
-#messageForm textarea {
-  width: 100%;
-  padding: 10px;
+/* Tabs */
+.messages-tabs {
+  display: flex;
+  gap: 10px;
   margin-bottom: 10px;
-  resize: none;
-  border: 1px solid #a7f3d0;
-  border-radius: 6px;
-  font-family: inherit;
 }
 
-#messageForm button {
-  padding: 10px 20px;
-  background-color: #10b981;
+.tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #a5d6a7; /* soft green */
+  color: #1b5e20;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.tab-btn.active {
+  background: #388e3c; /* deep green */
+  color: white;
+}
+
+.tab-btn:hover {
+  background: #66bb6a;
+  color: white;
+}
+
+/* Search Bar */
+.messages-search {
+  margin-bottom: 10px;
+}
+
+.messages-search input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #c8e6c9;
+  outline: none;
+}
+
+/* Message List */
+.messages-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+  background: white;
+}
+
+/* Message Bubbles */
+.message {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 70%;
+  clear: both;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Received (left) */
+.message.received {
+  background: #e8f5e9;
+  float: left;
+  color: #1b5e20;
+}
+
+/* Sent (right) */
+.message.sent {
+  background: #388e3c;
+  float: right;
+  color: white;
+}
+
+/* Compose Form */
+.compose-form {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compose-form label {
+  color: #1b5e20;
+  font-weight: bold;
+}
+
+.compose-form textarea {
+  resize: none;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #c8e6c9;
+  outline: none;
+}
+
+.compose-form button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  background: #388e3c;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
+  transition: background 0.3s;
 }
 
-#messageForm button:hover {
-  background-color: #059669;
+.compose-form button:hover {
+  background: #2e7d32;
 }
+
+
 /* Delete button styling */
 .delete-btn {
   background-color: #dc3545; /* Bootstrap danger red */
