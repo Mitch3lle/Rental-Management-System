@@ -1,5 +1,3 @@
-// script.js - single file replacement (copy & paste over your existing file)
-
 document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
   // Data (tenants + payments)
@@ -438,8 +436,9 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
   };
 
   html2pdf().set(opt).from(reportSection).save();
-});
+ 
 
+});
 
   // -----------------------
   // Tenants table
@@ -698,3 +697,5 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
     renderDashboardCharts
   };
 }); // DOMContentLoaded end
+
+
