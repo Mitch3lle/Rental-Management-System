@@ -1,40 +1,33 @@
+// full script.js — complete and integrated
 document.addEventListener("DOMContentLoaded", () => {
+  // -----------------------
+  // Data (tenants + payments)
+  // Use tenant IDs to avoid duplication when names change
+  // -----------------------
+  let nextTenantId = 3; // start after seeded ones
+  const tenants = [
+    { id: 1, name: "Alice", house: "A1", rent: 10000, lastPayment: "2025-04-01", paid: true },
+    { id: 2, name: "Brian", house: "B2", rent: 9500, lastPayment: "2025-03-15", paid: false }
+  ];
+
+  // payments store tenantId (so renaming a tenant doesn't duplicate)
+  let payments = [
+    { id: 1, tenantId: 1, amount: 10000, date: "2025-04-01", method: "M-Pesa", reference: "" },
+    { id: 2, tenantId: 2, amount: 9500, date: "2025-03-15", method: "Bank", reference: "" }
+  ];
+
   // -----------------------
   // Helpers
   // -----------------------
   const $ = id => document.getElementById(id);
   const formatKsh = n => `KSh ${Number(n || 0).toLocaleString()}`;
 
-  // -----------------------
-  // Data (tenants + payments)
-  // -----------------------
-  const tenants = [
-    {
-      name: "Alice",
-      house: "A1",
-      rent: 10000,
-      lastPayment: "2025-04-01",
-      paid: true,
-      payments: [{ amount: 10000, date: "2025-04-01", method: "M-Pesa" }]
-    },
-    {
-      name: "Brian",
-      house: "B2",
-      rent: 9500,
-      lastPayment: "2025-03-15",
-      paid: false,
-      payments: [{ amount: 9500, date: "2025-03-15", method: "Bank" }]
-    }
-  ];
+  function tenantNameById(id) {
+    const t = tenants.find(x => x.id === Number(id));
+    return t ? t.name : "(Unknown)";
+  }
 
-  // global payments list (for reports & payment table)
-  let payments = tenants.flatMap(t =>
-    t.payments.map(p => ({ tenant: t.name, ...p }))
-  );
-
-  // -----------------------
-  // Group payments by month
-  // -----------------------
+  // group payments by month (short month + year) and return ordered object
   function groupPaymentsByMonth(paymentList) {
     const map = {};
     paymentList.forEach(p => {
@@ -42,30 +35,48 @@ document.addEventListener("DOMContentLoaded", () => {
         const date = new Date(p.date);
         const month = date.toLocaleString("default", { month: "short", year: "numeric" });
         map[month] = (map[month] || 0) + Number(p.amount || 0);
-      } catch (e) {}
+      } catch (e) {
+        // ignore bad dates
+      }
     });
+    // sort keys by date order
     const entries = Object.keys(map)
-      .map(k => ({ k, d: new Date(k) }))
+      .map(k => ({ k, d: new Date(k) })) // parsing "Mon YYYY" is OK for labels here
       .sort((a, b) => a.d - b.d)
       .map(x => [x.k, map[x.k]]);
     return Object.fromEntries(entries);
   }
 
-  // -----------------------
-  // Add a payment
-  // -----------------------
-  function addPayment(tenantName, amount, date = null, method = "Manual") {
-    const d = date || new Date().toISOString().slice(0, 10);
-    const tenant = tenants.find(t => t.name === tenantName);
-    if (tenant) {
-      tenant.paid = true;
-      tenant.lastPayment = d;
-      tenant.payments.push({ amount: Number(amount), date: d, method });
+  // Add a payment entry and keep tenant state in sync (use tenantId)
+  function addPayment(tenantId, amount, date = null, method = "Manual", reference = "", notes = "", rentPeriod = "") {
+    const d = date || new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const payment = {
+      id: Date.now(),
+      tenantId: Number(tenantId),
+      amount: Number(amount),
+      date: d,
+      method,
+      reference,
+      notes,
+      rentPeriod
+    };
+    payments.push(payment);
+
+    // mark tenant as paid / update lastPayment
+    const t = tenants.find(x => x.id === Number(tenantId));
+    if (t) {
+      t.paid = true;
+      t.lastPayment = d;
     }
-    payments.push({ tenant: tenantName, amount: Number(amount), date: d, method });
+
+    // refresh UI
     populatePaymentsTable();
-    updateReports();
+    populateTenants();
     updateDashboard();
+    updateReports();
+    renderDashboardCharts();
+    updateBalancesTable();
+    updatePaymentTenantDropdown();
   }
 
   // -----------------------
@@ -91,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           showError("Invalid username or password.");
         }
-      }, 800);
+      }, 600);
     });
   }
 
@@ -114,14 +125,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (otpSubmitBtn) {
     otpSubmitBtn.addEventListener("click", () => {
       const otp = $("otp-code") ? $("otp-code").value.trim() : "";
+      // OTP matches previous behaviour — fixed test code "123456"
       if (otp === "123456") {
         if ($("otp-error")) $("otp-error").style.display = "none";
         if ($("otp-section")) $("otp-section").style.display = "none";
+
+        // Show dashboard (outer section visible + inner content)
         if ($("login-section")) $("login-section").style.display = "none";
         if ($("dashboard-section")) $("dashboard-section").style.display = "block";
         showSection("dashboard-content");
         updateDashboard();
-        renderDashboardCharts();
+        renderDashboardCharts(); // draw dashboard charts
       } else {
         const otpError = $("otp-error");
         if (otpError) {
@@ -247,6 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (target) target.style.display = "block";
   }
 
+  // Attach nav items safely
   const navDashboard = $("nav-dashboard");
   if (navDashboard) navDashboard.onclick = () => {
     if ($("dashboard-section")) $("dashboard-section").style.display = "block";
@@ -269,6 +284,8 @@ document.addEventListener("DOMContentLoaded", () => {
     navPayments.onclick = () => {
       showSection("payment-section");
       populatePaymentsTable();
+      updatePaymentTenantDropdown();
+      updateBalancesTable();
     };
   }
 
@@ -282,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------
-  // Payments table
+  // Payments table population (reads tenant names via tenantId)
   // -----------------------
   function populatePaymentsTable() {
     const tbody = $("payments-body");
@@ -290,70 +307,42 @@ document.addEventListener("DOMContentLoaded", () => {
     tbody.innerHTML = "";
     payments.forEach(p => {
       const row = document.createElement("tr");
-      row.innerHTML = `<td>${p.tenant}</td><td>${formatKsh(p.amount)}</td><td>${p.date}</td><td>${p.method}</td>`;
+      row.innerHTML = `<td>${tenantNameById(p.tenantId)}</td><td>${formatKsh(p.amount)}</td><td>${p.date}</td><td>${p.method}</td><td>${p.reference || ""}</td><td>${p.rentPeriod || ""}</td><td><button class="delete-payment" data-id="${p.id}">Delete</button></td>`;
       tbody.appendChild(row);
     });
-  }
 
-  // Add payment form
-  const paymentForm = $("add-payment-form");
-  if (paymentForm) {
-    paymentForm.addEventListener("submit", e => {
-      e.preventDefault();
-      const tenantName = $("payment-tenant").value;
-      const amount = $("payment-amount").value;
-      const method = $("payment-method").value;
-      addPayment(tenantName, amount, null, method);
-      paymentForm.reset();
-    });
-  }
-
-  // -----------------------
-  // Reports
-  // -----------------------
-  function updateReports() {
-    const ctx = $("paymentsChart");
-    if (!ctx) return;
-    const grouped = groupPaymentsByMonth(payments);
-    const labels = Object.keys(grouped);
-    const data = Object.values(grouped);
-
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [{
-          label: "Payments per Month",
-          data,
-          backgroundColor: "rgba(0, 128, 0, 0.6)"
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false }
+    // attach delete handlers
+    tbody.querySelectorAll(".delete-payment").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = Number(btn.getAttribute("data-id"));
+        const idx = payments.findIndex(x => x.id === id);
+        if (idx === -1) return;
+        if (confirm("Delete this payment?")) {
+          payments.splice(idx, 1);
+          populatePaymentsTable();
+          updateBalancesTable();
+          updateDashboard();
+          updateReports();
+          renderDashboardCharts();
         }
-      }
+      });
     });
   }
 
-  // -----------------------
-  // Dashboard (stub functions)
-  // -----------------------
-  function updateDashboard() {
-    // TODO: implement tenant count, total rent, etc.
+  // Populate tenant dropdown in Payment section
+  function updatePaymentTenantDropdown() {
+    const dropdown = $("tenant-select");
+    if (!dropdown) return;
+
+    dropdown.innerHTML = '<option value="">-- Select Tenant --</option>'; // reset
+
+    tenants.forEach(t => {
+      const option = document.createElement("option");
+      option.value = t.id; // ✅ use tenant ID, not name
+      option.textContent = `${t.name} (${t.house})`;
+      dropdown.appendChild(option);
+    });
   }
-
-  function renderDashboardCharts() {
-    // TODO: implement dashboard charts if needed
-  }
-
-  function populateTenants() {
-    // TODO: implement tenant table
-  }
-
-});
-
 
   // -----------------------
   // REPORTS (uses payments[] + tenants[])
@@ -379,12 +368,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Totals
-    // Total tenants (from tenants list — but count tenants who appear in filtered payments OR all tenants depending on desired behaviour)
-    // We'll show number of tenants in the system (since that's what your UI labeled), and also use payments to calculate collected.
     const totalTenants = tenants.length;
     const totalCollected = filtered.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
-    // Outstanding: compute expected (sum of rents for all tenants) minus collected in the filtered window
     const expected = tenants.reduce((sum, t) => sum + Number(t.rent || 0), 0);
     const due = Math.max(0, expected - totalCollected);
 
@@ -415,7 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const applyReportsBtn = $("apply-report-filters");
   if (applyReportsBtn) applyReportsBtn.addEventListener("click", updateReports);
 
-  // Reset filters button (if you later add it)
+  // Reset filters button
   const resetReportsBtn = $("reset-report-filters");
   if (resetReportsBtn) {
     resetReportsBtn.addEventListener("click", () => {
@@ -466,50 +452,47 @@ document.addEventListener("DOMContentLoaded", () => {
       options: { responsive: true, maintainAspectRatio: false }
     });
   }
-  // Export reports to CSV
-function exportReportsToCSV() {
-  let csvContent = "data:text/csv;charset=utf-8,";
 
-  // Report totals
-  csvContent += "Metric,Value\n";
-  csvContent += `Total Tenants,${document.getElementById("report-tenant-count").textContent}\n`;
-  csvContent += `Total Rent Collected,${document.getElementById("report-rent").textContent}\n`;
-  csvContent += `Outstanding Balances,${document.getElementById("report-due").textContent}\n\n`;
+  // Export reports to CSV (keeps as you had)
+  function exportReportsToCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
 
-  // Breakdown by method
-  csvContent += "Payment Method,Amount\n";
-  csvContent += `M-Pesa,${document.getElementById("mpesa-total").textContent}\n`;
-  csvContent += `Bank,${document.getElementById("bank-total").textContent}\n`;
-  csvContent += `Cash,${document.getElementById("cash-total").textContent}\n\n`;
+    csvContent += "Metric,Value\n";
+    csvContent += `Total Tenants,${document.getElementById("report-tenant-count").textContent}\n`;
+    csvContent += `Total Rent Collected,${document.getElementById("report-rent").textContent}\n`;
+    csvContent += `Outstanding Balances,${document.getElementById("report-due").textContent}\n\n`;
 
-  // Create downloadable file
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "grms_report.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
+    csvContent += "Payment Method,Amount\n";
+    csvContent += `M-Pesa,${document.getElementById("mpesa-total").textContent}\n`;
+    csvContent += `Bank,${document.getElementById("bank-total").textContent}\n`;
+    csvContent += `Cash,${document.getElementById("cash-total").textContent}\n\n`;
 
-// Attach to pdf button
-document.getElementById("export-csv-btn").addEventListener("click", exportReportsToCSV);
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "grms_report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
-document.getElementById("export-pdf-btn").addEventListener("click", function () {
-  const reportSection = document.getElementById("report-section");
+  const exportCsvBtn = $("export-csv-btn");
+  if (exportCsvBtn) exportCsvBtn.addEventListener("click", exportReportsToCSV);
 
-  const opt = {
-    margin:       0.5,
-    filename:     'GRMS_Report.pdf',
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-
-  html2pdf().set(opt).from(reportSection).save();
- 
-
-});
+  const exportPdfBtn = $("export-pdf-btn");
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener("click", function () {
+      const reportSection = document.getElementById("report-section");
+      const opt = {
+        margin: 0.5,
+        filename: 'GRMS_Report.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(reportSection).save();
+    });
+  }
 
   // -----------------------
   // Tenants table
@@ -533,81 +516,96 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
           (filterValue === "unpaid" && !t.paid);
         return matchesSearch && matchesFilter;
       })
-      .forEach((t, index) => {
+      .forEach((t) => {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${t.name}</td>
           <td>${t.house}</td>
-          <td>KSh ${Number(t.rent).toLocaleString()}</td>
+          <td>${formatKsh(t.rent)}</td>
           <td>${t.lastPayment || ""}</td>
           <td>
             <span class="${t.paid ? 'status-paid' : 'status-unpaid'}">
               ${t.paid ? 'Paid' : 'Unpaid'}
             </span>
-            ${t.paid ? '' : '<button class="mark-paid-btn">Mark as Paid</button>'}
-            <button class="edit-btn">Edit</button>
-            <button class="delete-btn">Delete</button>
+            ${t.paid ? '' : `<button class="mark-paid-btn" data-id="${t.id}">Mark as Paid</button>`}
+            <button class="edit-btn" data-id="${t.id}">Edit</button>
+            <button class="delete-btn" data-id="${t.id}">Delete</button>
           </td>
         `;
         tbody.appendChild(row);
+      });
 
-        // mark as paid -> create a payment entry for tenant
-        const markBtn = row.querySelector(".mark-paid-btn");
-        if (markBtn) {
-          markBtn.addEventListener("click", () => {
-            addPayment(t.name, t.rent, null, "Manual");
-            populateTenants();
-            updateDashboard();
-            populatePaymentsTable();
-            updateReports();
-          });
-        }
-
-        // edit (in-place)
-        const editBtn = row.querySelector(".edit-btn");
-        if (editBtn) {
-          editBtn.addEventListener("click", () => {
-            row.innerHTML = `
-              <td><input type="text" value="${t.name}" id="edit-name-${index}"></td>
-              <td><input type="text" value="${t.house}" id="edit-house-${index}"></td>
-              <td><input type="number" value="${t.rent}" id="edit-rent-${index}"></td>
-              <td><input type="date" value="${t.lastPayment}" id="edit-date-${index}"></td>
-              <td>
-                <button class="save-btn">Save</button>
-                <button class="cancel-btn">Cancel</button>
-              </td>
-            `;
-
-            row.querySelector(".save-btn").onclick = () => {
-              t.name = document.getElementById(`edit-name-${index}`).value;
-              t.house = document.getElementById(`edit-house-${index}`).value;
-              t.rent = parseInt(document.getElementById(`edit-rent-${index}`).value, 10) || t.rent;
-              t.lastPayment = document.getElementById(`edit-date-${index}`).value;
-              populateTenants();
-              updateDashboard();
-            };
-
-            row.querySelector(".cancel-btn").onclick = () => {
-              populateTenants();
-            };
-          });
-        }
-
-        // delete
-        const delBtn = row.querySelector(".delete-btn");
-        if (delBtn) {
-          delBtn.addEventListener("click", () => {
-            if (confirm(`Delete ${t.name}?`)) {
-              tenants.splice(index, 1);
-              payments = payments.filter(p => p.tenant !== t.name);
-              populateTenants();
-              updateDashboard();
-              populatePaymentsTable();
-              updateReports();
-            }
-          });
+    // attach "Mark as Paid"
+    document.querySelectorAll(".mark-paid-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = Number(btn.getAttribute("data-id"));
+        const tenant = tenants.find(t => t.id === id);
+        if (tenant) {
+          addPayment(tenant.id, tenant.rent, null, "Manual", `AUTO-${Date.now()}`);
         }
       });
+    });
+
+    // attach Edit
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const id = Number(btn.getAttribute("data-id"));
+        const tenant = tenants.find(t => t.id === id);
+        if (!tenant) return;
+
+        // find the row to replace with inputs
+        const row = btn.closest("tr");
+        row.innerHTML = `
+          <td><input type="text" value="${tenant.name}" id="edit-name-${id}"></td>
+          <td><input type="text" value="${tenant.house}" id="edit-house-${id}"></td>
+          <td><input type="number" value="${tenant.rent}" id="edit-rent-${id}"></td>
+          <td><input type="date" value="${tenant.lastPayment || ''}" id="edit-date-${id}"></td>
+          <td>
+            <button class="save-btn" data-id="${id}">Save</button>
+            <button class="cancel-btn" data-id="${id}">Cancel</button>
+          </td>
+        `;
+
+        // Save handler
+        row.querySelector(".save-btn").addEventListener("click", () => {
+          tenant.name = document.getElementById(`edit-name-${id}`).value.trim() || tenant.name;
+          tenant.house = document.getElementById(`edit-house-${id}`).value.trim() || tenant.house;
+          tenant.rent = parseInt(document.getElementById(`edit-rent-${id}`).value, 10) || tenant.rent;
+          tenant.lastPayment = document.getElementById(`edit-date-${id}`).value || tenant.lastPayment;
+
+          populateTenants();
+          populatePaymentsTable();
+          updateDashboard();
+          updateReports();
+          updatePaymentTenantDropdown();
+        });
+
+        // Cancel handler
+        row.querySelector(".cancel-btn").addEventListener("click", () => {
+          populateTenants();
+        });
+      });
+    });
+
+    // attach Delete
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = Number(btn.getAttribute("data-id"));
+        const tIndex = tenants.findIndex(x => x.id === id);
+        if (tIndex === -1) return;
+        if (confirm(`Delete ${tenants[tIndex].name}?`)) {
+          // remove tenant and their payments
+          tenants.splice(tIndex, 1);
+          payments = payments.filter(p => p.tenantId !== id);
+          populateTenants();
+          populatePaymentsTable();
+          updateDashboard();
+          updateReports();
+          updatePaymentTenantDropdown();
+          updateBalancesTable();
+        }
+      });
+    });
   }
 
   // live search/filter hookup
@@ -656,9 +654,18 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
       const lastPayment = $("lastPayment") ? $("lastPayment").value : "";
 
       if (!name) return alert("Tenant name required.");
-      tenants.push({ name, house, rent, lastPayment, paid: false });
+      const newTenant = {
+        id: nextTenantId++,
+        name,
+        house,
+        rent,
+        lastPayment: lastPayment || "",
+        paid: !!lastPayment,
+      };
+      tenants.push(newTenant);
       populateTenants();
       updateDashboard();
+      updatePaymentTenantDropdown();
       if (modal) modal.style.display = "none";
       this.reset();
     });
@@ -671,7 +678,6 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
   let balanceChart = null;
 
   function renderDashboardCharts() {
-    // destruction if exist
     try { if (paymentsChart) paymentsChart.destroy(); } catch (e) {}
     try { if (balanceChart) balanceChart.destroy(); } catch (e) {}
     paymentsChart = null;
@@ -680,13 +686,11 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
     const paymentsEl = $("paymentsChart");
     const balanceEl = $("balanceChart");
 
-    // build monthly series from payments (dashboard)
     const monthly = groupPaymentsByMonth(payments);
     const labels = Object.keys(monthly);
     const values = Object.values(monthly);
 
-    // balance trend: simple cumulative outstanding over the months
-    // compute expected monthly = sum of rents (assuming one period) — for visualization we produce a decreasing outstanding as payments accumulate
+    // balance trend: cumulative outstanding
     const runningOutstanding = [];
     let cumulativeCollected = 0;
     for (let i = 0; i < values.length; i++) {
@@ -729,185 +733,240 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
   }
 
   // -----------------------
-  // Messages
+  // Messages (kept minimal as before)
   // -----------------------
- // ================== MESSAGES SECTION ==================
+  const inbox = $("inbox");
+  const outbox = $("outbox");
+  const messageForm = $("messageForm");
+  const messageInput = $("messageInput");
+  const searchMessages = $("searchMessages");
+  const newMessageCount = $("newMessageCount"); // sidebar badge
+  const senderRole = $("senderRole"); // if present in your HTML
 
+  let inboxMessages = [];
+  let outboxMessages = [];
+  let unreadCount = 0;
 
-// DOM references
-const inbox = document.getElementById("inbox");
-const outbox = document.getElementById("outbox");
-const messageForm = document.getElementById("messageForm");
-const messageInput = document.getElementById("messageInput");
-const searchMessages = document.getElementById("searchMessages");
-const newMessageCount = document.getElementById("newMessageCount"); // sidebar badge
-
-// Mock data store
-let inboxMessages = [];
-let outboxMessages = [];
-let unreadCount = 0;
-
-// =======================
-// Functions
-// =======================
-
-// Switch tabs (Inbox / Outbox)
-function showMessages(tab) {
-  if (tab === "inbox") {
-    inbox.style.display = "block";
-    outbox.style.display = "none";
-    document.getElementById("inboxBtn").classList.add("active");
-    document.getElementById("outboxBtn").classList.remove("active");
-  } else {
-    inbox.style.display = "none";
-    outbox.style.display = "block";
-    document.getElementById("outboxBtn").classList.add("active");
-    document.getElementById("inboxBtn").classList.remove("active");
-  }
-}
-
-// Render messages into container
-function renderMessages(listElement, messages, isInbox = false) {
-  listElement.innerHTML = "";
-
-  if (messages.length === 0) {
-    const emptyMsg = document.createElement("p");
-    emptyMsg.className = "empty-placeholder";
-    emptyMsg.textContent = "No messages yet.";
-    listElement.appendChild(emptyMsg);
-    return;
+  function showMessages(tab) {
+    if (!inbox || !outbox) return;
+    if (tab === "inbox") {
+      inbox.style.display = "block";
+      outbox.style.display = "none";
+      if ($("inboxBtn")) $("inboxBtn").classList.add("active");
+      if ($("outboxBtn")) $("outboxBtn").classList.remove("active");
+    } else {
+      inbox.style.display = "none";
+      outbox.style.display = "block";
+      if ($("outboxBtn")) $("outboxBtn").classList.add("active");
+      if ($("inboxBtn")) $("inboxBtn").classList.remove("active");
+    }
   }
 
-  messages.forEach((msg, index) => {
-    const item = document.createElement("div");
-    item.className = "message-item" + (msg.unread ? " unread" : "");
+  function renderMessages(listElement, messages, isInbox = false) {
+    if (!listElement) return;
+    listElement.innerHTML = "";
 
-    item.innerHTML = `
-      <strong>${isInbox ? "From: " + msg.sender : "To: " + msg.receiver}</strong>
-      <p>${msg.content}</p>
-      <span class="date">${msg.date}</span>
-      <button class="delete-btn" onclick="deleteMessage(${index}, ${isInbox})">🗑</button>
-    `;
+    if (messages.length === 0) {
+      const emptyMsg = document.createElement("p");
+      emptyMsg.className = "empty-placeholder";
+      emptyMsg.textContent = "No messages yet.";
+      listElement.appendChild(emptyMsg);
+      return;
+    }
 
-    // Mark as read when clicked
-    item.addEventListener("click", () => {
-      if (isInbox && msg.unread) {
-        msg.unread = false;
-        unreadCount--;
-        updateBadge();
-        renderMessages(listElement, messages, isInbox);
-      }
+    messages.forEach((msg, index) => {
+      const item = document.createElement("div");
+      item.className = "message-item" + (msg.unread ? " unread" : "");
+      item.innerHTML = `
+        <strong>${isInbox ? "From: " + msg.sender : "To: " + msg.receiver}</strong>
+        <p>${msg.content}</p>
+        <span class="date">${msg.date}</span>
+        <button class="delete-btn" data-idx="${index}" data-inbox="${isInbox}">🗑</button>
+      `;
+      item.addEventListener("click", () => {
+        if (isInbox && msg.unread) {
+          msg.unread = false;
+          unreadCount = Math.max(0, unreadCount - 1);
+          updateBadge();
+          renderMessages(listElement, messages, isInbox);
+        }
+      });
+      listElement.appendChild(item);
     });
 
-    listElement.appendChild(item);
-  });
-}
-
-// Delete message
-function deleteMessage(index, isInbox) {
-  if (isInbox) {
-    inboxMessages.splice(index, 1);
-    renderMessages(inbox, inboxMessages, true);
-  } else {
-    outboxMessages.splice(index, 1);
-    renderMessages(outbox, outboxMessages, false);
+    // delete handlers
+    listElement.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const idx = Number(btn.getAttribute("data-idx"));
+        const isInboxFlag = btn.getAttribute("data-inbox") === "true";
+        if (isInboxFlag) {
+          inboxMessages.splice(idx, 1);
+          renderMessages(inbox, inboxMessages, true);
+        } else {
+          outboxMessages.splice(idx, 1);
+          renderMessages(outbox, outboxMessages, false);
+        }
+      });
+    });
   }
-}
 
-// Update sidebar badge
-function updateBadge() {
-  if (newMessageCount) {
+  function deleteMessage(index, isInbox) {
+    if (isInbox) {
+      inboxMessages.splice(index, 1);
+      renderMessages(inbox, inboxMessages, true);
+    } else {
+      outboxMessages.splice(index, 1);
+      renderMessages(outbox, outboxMessages, false);
+    }
+  }
+
+  function updateBadge() {
+    if (!newMessageCount) return;
     newMessageCount.textContent = unreadCount > 0 ? unreadCount : "";
   }
-}
 
-// =======================
-// Event Listeners
-// =======================
+  if ($("inboxBtn")) $("inboxBtn").addEventListener("click", () => showMessages("inbox"));
+  if ($("outboxBtn")) $("outboxBtn").addEventListener("click", () => showMessages("outbox"));
 
-// Tabs
-document.getElementById("inboxBtn").addEventListener("click", () => showMessages("inbox"));
-document.getElementById("outboxBtn").addEventListener("click", () => showMessages("outbox"));
-
-// Handle sending messages
-messageForm.addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const message = messageInput.value.trim();
-  const sender = senderRole.value; // Get selected role
-  if (!message) return;
-
-  // Determine receiver
-  const receiver = sender === "Landlord" ? "Tenant" : "Landlord";
-
-  // Create new message object
-  const newMsg = {
-    sender: sender,
-    receiver: receiver,
-    content: message,
-    date: new Date().toLocaleString(),
-    unread: true
-  };
-
-  // Push to outbox (for sender) and inbox (for receiver)
-  outboxMessages.push({ ...newMsg, unread: false });
-  inboxMessages.push({ ...newMsg });
-
-  // Update unread count only if the receiver is "me"
-  if (receiver === "Landlord") {
-    unreadCount++;
-    updateBadge();
+  if (messageForm && messageInput && senderRole) {
+    messageForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const message = messageInput.value.trim();
+      const sender = senderRole.value || "Landlord";
+      if (!message) return;
+      const receiver = sender === "Landlord" ? "Tenant" : "Landlord";
+      const newMsg = {
+        sender,
+        receiver,
+        content: message,
+        date: new Date().toLocaleString(),
+        unread: true
+      };
+      outboxMessages.push({ ...newMsg, unread: false });
+      inboxMessages.push({ ...newMsg });
+      if (receiver === "Landlord") {
+        unreadCount++;
+      }
+      renderMessages(outbox, outboxMessages, false);
+      renderMessages(inbox, inboxMessages, true);
+      updateBadge();
+      messageInput.value = "";
+      showMessages("outbox");
+    });
   }
 
-  // Re-render
-  renderMessages(outbox, outboxMessages, false);
+  if (searchMessages) {
+    searchMessages.addEventListener("input", () => {
+      const query = searchMessages.value.toLowerCase();
+      const filteredInbox = inboxMessages.filter(m => m.content.toLowerCase().includes(query));
+      const filteredOutbox = outboxMessages.filter(m => m.content.toLowerCase().includes(query));
+      renderMessages(inbox, filteredInbox, true);
+      renderMessages(outbox, filteredOutbox, false);
+    });
+  }
+
+  showMessages("inbox");
   renderMessages(inbox, inboxMessages, true);
-
-  // Reset form
-  messageInput.value = "";
-
-  // Switch to Outbox tab automatically
-  showMessages("outbox");
-});
-
-
-// Search filter
-searchMessages.addEventListener("input", () => {
-  const query = searchMessages.value.toLowerCase();
-  const filteredInbox = inboxMessages.filter(m => m.content.toLowerCase().includes(query));
-  const filteredOutbox = outboxMessages.filter(m => m.content.toLowerCase().includes(query));
-
-  renderMessages(inbox, filteredInbox, true);
-  renderMessages(outbox, filteredOutbox, false);
-});
-
-// =======================
-// Init
-// =======================
-showMessages("inbox");
-renderMessages(inbox, inboxMessages, true);
-renderMessages(outbox, outboxMessages, false);
-updateBadge();
-
+  renderMessages(outbox, outboxMessages, false);
+  updateBadge();
 
   // -----------------------
-  // Initialize UI state
+  // Balances table (per-tenant summary)
+  // -----------------------
+  function updateBalancesTable() {
+    const balancesBody = $("balances-body");
+    if (!balancesBody) return;
+    balancesBody.innerHTML = "";
+
+    tenants.forEach(tenant => {
+      const totalPaid = payments
+        .filter(p => p.tenantId === tenant.id)
+        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+      const rentDue = Number(tenant.rent) || 0;
+      const balance = rentDue - totalPaid;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tenant.name}</td>
+        <td>${rentDue.toFixed(2)}</td>
+        <td>${totalPaid.toFixed(2)}</td>
+        <td style="color:${balance <= 0 ? 'green' : 'red'};">
+          ${balance.toFixed(2)}
+        </td>
+      `;
+      balancesBody.appendChild(row);
+    });
+  }
+
+  // -----------------------
+  // Payment form handling (new Payment section)
+  // Expects these fields in HTML:
+  // - form#payment-form
+  // - select#tenant-select
+  // - input#payment-amount
+  // - input#payment-date
+  // - select#payment-method
+  // - input#payment-ref
+  // - textarea#payment-notes
+  // - input#rent-period
+  // -----------------------
+  const paymentForm = $("payment-form");
+  if (paymentForm) {
+    paymentForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const tenantId = $("tenant-select") ? $("tenant-select").value : "";
+      const amountEl = $("payment-amount");
+      const amount = amountEl ? Number(amountEl.value) : 0;
+      const date = $("payment-date") ? $("payment-date").value : "";
+      const method = $("payment-method") ? $("payment-method").value : "Manual";
+      const reference = $("payment-ref") ? $("payment-ref").value : "";
+      const notes = $("payment-notes") ? $("payment-notes").value : "";
+      const rentPeriod = $("rent-period") ? $("rent-period").value : "";
+
+      if (!tenantId) return alert("Please select a tenant.");
+      if (!amount || Number(amount) <= 0) return alert("Enter a valid amount.");
+      addPayment(Number(tenantId), amount, date || null, method, reference, notes, rentPeriod);
+
+      paymentForm.reset();
+      updatePaymentTenantDropdown(); // keep dropdown fresh
+      populatePaymentsTable();
+      updateBalancesTable();
+      updateDashboard();
+      updateReports();
+    });
+  }
+
+  // Also attach small helper button (if you used one) - keep optional
+  const addPaymentBtn = $("add-payment-btn");
+  if (addPaymentBtn) {
+    addPaymentBtn.addEventListener("click", () => {
+      if (paymentForm) paymentForm.requestSubmit();
+    });
+  }
+
+  // -----------------------
+  // Initialize UI state (first paint)
   // -----------------------
   populateTenants();
   populatePaymentsTable();
+  updatePaymentTenantDropdown();
+  updateBalancesTable();
   updateDashboard();
-  // Render dashboard charts initially if dashboard is visible (safe)
   renderDashboardCharts();
+  updateReports();
 
-  // Expose a couple helpers to window for debugging if needed (optional)
+  // Expose a couple helpers for debugging (optional)
   window.__grpms = {
     tenants,
     payments,
-    updateReports,
+    addPayment,
     populateTenants,
-    updateDashboard,
-    renderDashboardCharts
+    populatePaymentsTable,
+    updateReports,
+    renderDashboardCharts,
+    updateBalancesTable
   };
 }); // DOMContentLoaded end
-
-
