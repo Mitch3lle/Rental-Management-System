@@ -190,20 +190,80 @@
           </section>
 
           <!-- PAYMENTS -->
-          <section id="payment-section" style="display: none;">
-            <h2>Payment Records</h2>
-            <table class="tenants-table">
-              <thead>
-                <tr>
-                  <th>Tenant Name</th>
-                  <th>Amount</th>
-                  <th>Date</th>
-                  <th>Method</th>
-                </tr>
-              </thead>
-              <tbody id="payments-body"></tbody>
-            </table>
-          </section>
+         <section id="payment-section" style="display: none;">
+  <h2>Payment Management</h2>
+
+  <!-- ===== Payment Entry Form ===== -->
+  <form id="payment-form" class="payment-form">
+    <label for="tenant-select">Tenant:</label>
+    <select id="tenant-select" required>
+      <option value="">-- Select Tenant --</option>
+      <!-- Dynamically populated with tenant names -->
+    </select>
+
+    <label for="payment-method">Payment Method:</label>
+    <select id="payment-method" required>
+      <option value="">-- Select Method --</option>
+      <option value="Cash">Cash</option>
+      <option value="Bank">Bank Transfer</option>
+      <option value="Mobile Money">Mobile Money</option>
+    </select>
+
+    <label for="payment-amount">Amount:</label>
+    <input type="number" id="payment-amount" min="0" step="0.01" required />
+
+    <label for="payment-date">Date:</label>
+    <input type="date" id="payment-date" required />
+
+    <label for="rent-period">Rent Period:</label>
+    <input type="month" id="rent-period" required />
+
+    <label for="payment-ref">Reference Number:</label>
+    <input type="text" id="payment-ref" placeholder="e.g. MPESA123ABC" />
+
+    <label for="payment-notes">Notes:</label>
+    <textarea id="payment-notes" rows="2" placeholder="Optional"></textarea>
+
+    <button type="submit">Add Payment</button>
+  </form>
+
+  <hr />
+
+  <!-- ===== Payment Records Table ===== -->
+  <h3>Payment Records</h3>
+  <input type="text" id="search-payments" placeholder="Search by tenant or reference..." />
+
+  <table class="payments-table">
+    <thead>
+      <tr>
+        <th>Tenant Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Method</th>
+        <th>Reference</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="payments-body">
+      <!-- Payment rows will be injected here -->
+    </tbody>
+  </table>
+  <!-- ===== Tenant Balances ===== -->
+<h3>Tenant Balances</h3>
+<table class="balances-table">
+  <thead>
+    <tr>
+      <th>Tenant</th>
+      <th>Rent Due</th>
+      <th>Total Paid</th>
+      <th>Balance</th>
+    </tr>
+  </thead>
+  <tbody id="balances-body"></tbody>
+</table>
+</section>
+
 
           
           <!-- REPORTS -->
