@@ -1,25 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
-  // Data (tenants + payments)
-  // -----------------------
-  const tenants = [
-    { name: "Alice", house: "A1", rent: 10000, lastPayment: "2025-04-01", paid: true },
-    { name: "Brian", house: "B2", rent: 9500, lastPayment: "2025-03-15", paid: false }
-  ];
-
-  // payments history used by Payments tab and Reports
-  let payments = [
-    { tenant: "Alice", amount: 10000, date: "2025-04-01", method: "M-Pesa" },
-    { tenant: "Brian", amount: 9500, date: "2025-03-15", method: "Bank" }
-  ];
-
-  // -----------------------
   // Helpers
   // -----------------------
   const $ = id => document.getElementById(id);
   const formatKsh = n => `KSh ${Number(n || 0).toLocaleString()}`;
 
-  // group payments by month (short month names) and return ordered object
+  // -----------------------
+  // Data (tenants + payments)
+  // -----------------------
+  const tenants = [
+    {
+      name: "Alice",
+      house: "A1",
+      rent: 10000,
+      lastPayment: "2025-04-01",
+      paid: true,
+      payments: [{ amount: 10000, date: "2025-04-01", method: "M-Pesa" }]
+    },
+    {
+      name: "Brian",
+      house: "B2",
+      rent: 9500,
+      lastPayment: "2025-03-15",
+      paid: false,
+      payments: [{ amount: 9500, date: "2025-03-15", method: "Bank" }]
+    }
+  ];
+
+  // global payments list (for reports & payment table)
+  let payments = tenants.flatMap(t =>
+    t.payments.map(p => ({ tenant: t.name, ...p }))
+  );
+
+  // -----------------------
+  // Group payments by month
+  // -----------------------
   function groupPaymentsByMonth(paymentList) {
     const map = {};
     paymentList.forEach(p => {
@@ -27,28 +42,30 @@ document.addEventListener("DOMContentLoaded", () => {
         const date = new Date(p.date);
         const month = date.toLocaleString("default", { month: "short", year: "numeric" });
         map[month] = (map[month] || 0) + Number(p.amount || 0);
-      } catch (e) {
-        // ignore bad dates
-      }
+      } catch (e) {}
     });
-    // sort keys by date order
     const entries = Object.keys(map)
-      .map(k => ({ k, d: new Date(k) })) // Note: Date parsing from "Mon YYYY" might be locale-dependent but usually OK for our short labels
+      .map(k => ({ k, d: new Date(k) }))
       .sort((a, b) => a.d - b.d)
       .map(x => [x.k, map[x.k]]);
     return Object.fromEntries(entries);
   }
 
-  // Add a payment entry and keep tenant state in sync
+  // -----------------------
+  // Add a payment
+  // -----------------------
   function addPayment(tenantName, amount, date = null, method = "Manual") {
-    const d = date || new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    payments.push({ tenant: tenantName, amount: Number(amount), date: d, method });
-    // mark tenant as paid and update lastPayment
-    const t = tenants.find(x => x.name === tenantName);
-    if (t) {
-      t.paid = true;
-      t.lastPayment = d;
+    const d = date || new Date().toISOString().slice(0, 10);
+    const tenant = tenants.find(t => t.name === tenantName);
+    if (tenant) {
+      tenant.paid = true;
+      tenant.lastPayment = d;
+      tenant.payments.push({ amount: Number(amount), date: d, method });
     }
+    payments.push({ tenant: tenantName, amount: Number(amount), date: d, method });
+    populatePaymentsTable();
+    updateReports();
+    updateDashboard();
   }
 
   // -----------------------
@@ -100,13 +117,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (otp === "123456") {
         if ($("otp-error")) $("otp-error").style.display = "none";
         if ($("otp-section")) $("otp-section").style.display = "none";
-
-        // Show dashboard (outer section visible + inner content)
         if ($("login-section")) $("login-section").style.display = "none";
         if ($("dashboard-section")) $("dashboard-section").style.display = "block";
         showSection("dashboard-content");
         updateDashboard();
-        renderDashboardCharts(); // draw dashboard charts
+        renderDashboardCharts();
       } else {
         const otpError = $("otp-error");
         if (otpError) {
@@ -118,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------
-  // Toggle password icons (works for all .toggle-password icons)
+  // Toggle password icons
   // -----------------------
   document.querySelectorAll(".toggle-password").forEach(icon => {
     icon.addEventListener("click", function () {
@@ -137,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // -----------------------
-  // Dummy Google login (simulated)
+  // Dummy Google login
   // -----------------------
   const googleLoginBtn = $("google-login-btn");
   if (googleLoginBtn) {
@@ -159,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------
-  // Forgot password (single page "route" inside index.html)
+  // Forgot password
   // -----------------------
   const forgotLink = $("forgot-password-link");
   if (forgotLink) {
@@ -194,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------
-  // Email Signup (inline section)
+  // Email Signup
   // -----------------------
   const emailSignupBtn = $("email-signup-btn");
   if (emailSignupBtn) {
@@ -214,10 +229,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -----------------------
-  // Section switching (sidebar)
+  // Section switching
   // -----------------------
   function showSection(id) {
-    // hide inner content sections (the ones inside .main)
     const sections = [
       "dashboard-content",
       "tenant-section",
@@ -233,10 +247,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (target) target.style.display = "block";
   }
 
-  // Attach nav items safely
   const navDashboard = $("nav-dashboard");
   if (navDashboard) navDashboard.onclick = () => {
-    // ensure outer dashboard-section is visible
     if ($("dashboard-section")) $("dashboard-section").style.display = "block";
     showSection("dashboard-content");
     updateDashboard();
@@ -263,15 +275,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const navReports = $("nav-reports");
   if (navReports) {
     navReports.onclick = () => {
-      // ensure outer dashboard-section is visible (we're inside the dashboard area)
       if ($("dashboard-section")) $("dashboard-section").style.display = "block";
       showSection("report-section");
-      updateReports(); // load reports and charts
+      updateReports();
     };
   }
 
   // -----------------------
-  // Payments table population
+  // Payments table
   // -----------------------
   function populatePaymentsTable() {
     const tbody = $("payments-body");
@@ -279,10 +290,70 @@ document.addEventListener("DOMContentLoaded", () => {
     tbody.innerHTML = "";
     payments.forEach(p => {
       const row = document.createElement("tr");
-      row.innerHTML = `<td>${p.tenant}</td><td>KSh ${Number(p.amount).toLocaleString()}</td><td>${p.date}</td><td>${p.method}</td>`;
+      row.innerHTML = `<td>${p.tenant}</td><td>${formatKsh(p.amount)}</td><td>${p.date}</td><td>${p.method}</td>`;
       tbody.appendChild(row);
     });
   }
+
+  // Add payment form
+  const paymentForm = $("add-payment-form");
+  if (paymentForm) {
+    paymentForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const tenantName = $("payment-tenant").value;
+      const amount = $("payment-amount").value;
+      const method = $("payment-method").value;
+      addPayment(tenantName, amount, null, method);
+      paymentForm.reset();
+    });
+  }
+
+  // -----------------------
+  // Reports
+  // -----------------------
+  function updateReports() {
+    const ctx = $("paymentsChart");
+    if (!ctx) return;
+    const grouped = groupPaymentsByMonth(payments);
+    const labels = Object.keys(grouped);
+    const data = Object.values(grouped);
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "Payments per Month",
+          data,
+          backgroundColor: "rgba(0, 128, 0, 0.6)"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+
+  // -----------------------
+  // Dashboard (stub functions)
+  // -----------------------
+  function updateDashboard() {
+    // TODO: implement tenant count, total rent, etc.
+  }
+
+  function renderDashboardCharts() {
+    // TODO: implement dashboard charts if needed
+  }
+
+  function populateTenants() {
+    // TODO: implement tenant table
+  }
+
+});
+
 
   // -----------------------
   // REPORTS (uses payments[] + tenants[])
@@ -661,9 +732,7 @@ document.getElementById("export-pdf-btn").addEventListener("click", function () 
   // Messages
   // -----------------------
  // ================== MESSAGES SECTION ==================
-// =======================
-// Messages Section Script
-// =======================
+
 
 // DOM references
 const inbox = document.getElementById("inbox");
