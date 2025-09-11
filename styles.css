@@ -920,3 +920,130 @@ button {
   width: 100% !important;
   height: 100% !important;
 }
+/* ===== Payment Section Styles ===== */
+#payment-section {
+  max-height: 100vh;          /* prevent section from overflowing screen */
+  overflow-y: auto;          /* enable scrolling if content is too tall */
+  padding: 20px;
+  background: #f9fff9;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+#payment-section h2, 
+#payment-section h3 {
+  color: #1b5e20; /* dark green */
+  margin-bottom: 15px;
+}
+
+/* ----- Payment Form ----- */
+.payment-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.payment-form label {
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.payment-form input,
+.payment-form select,
+.payment-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+  background: #ffffff;
+  transition: border 0.2s;
+}
+
+.payment-form input:focus,
+.payment-form select:focus,
+.payment-form textarea:focus {
+  border-color: #2e7d32;
+  outline: none;
+}
+
+.payment-form button {
+  grid-column: span 2;
+  background:#43BA82;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.payment-form button:hover {
+  background: #1b5e20;
+}
+
+/* ----- Search Input ----- */
+#search-payments {
+  margin-bottom: 15px;
+  padding: 8px 12px;
+  width: 100%;
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+}
+
+/* ----- Table Styles ----- */
+.payments-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.payments-table th {
+ position: sticky;
+  top: 0;
+  z-index: 2;
+  background:#3AB688 
+}
+
+.payments-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.payments-table tr:nth-child(even) {
+  background: #f1f8f4; /* light green row */
+}
+
+.payments-table tr:hover {
+  background: #e8f5e9; /* hover effect */
+}
+
+/* ----- Action Buttons ----- */
+.payments-table .action-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.action-edit {
+  background: #aed581; /* light green */
+  color: #1b5e20;
+}
+
+.action-edit:hover {
+  background: #9ccc65;
+}
+
+.action-delete {
+  background: #ef9a9a; /* light red */
+  color: #b71c1c;
+}
+
+.action-delete:hover {
+  background: #e57373;
+}
