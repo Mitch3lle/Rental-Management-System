@@ -4,17 +4,44 @@ document.addEventListener("DOMContentLoaded", () => {
   // Data (tenants + payments)
   // Use tenant IDs to avoid duplication when names change
   // -----------------------
-  let nextTenantId = 3; // start after seeded ones
-  const tenants = [
-    { id: 1, name: "Alice", house: "A1", rent: 10000, lastPayment: "2025-04-01", paid: true },
-    { id: 2, name: "Brian", house: "B2", rent: 9500, lastPayment: "2025-03-15", paid: false }
-  ];
+  let nextTenantId = 21; // start after 20 seeded tenants
 
-  // payments store tenantId (so renaming a tenant doesn't duplicate)
-  let payments = [
-    { id: 1, tenantId: 1, amount: 10000, date: "2025-04-01", method: "M-Pesa", reference: "" },
-    { id: 2, tenantId: 2, amount: 9500, date: "2025-03-15", method: "Bank", reference: "" }
-  ];
+const tenants = [
+  { id: 1, name: "Mary Atieno", house: "Kisumu Heights A1", rent: 12000, lastPayment: "2025-08-01", paid: true },
+  { id: 2, name: "James Otieno", house: "Lakeview B2", rent: 9500, lastPayment: "2025-08-05", paid: false },
+  { id: 3, name: "Grace Achieng", house: "Milimani C3", rent: 15000, lastPayment: "2025-07-28", paid: true },
+  { id: 4, name: "Daniel Onyango", house: "Tom Mboya D4", rent: 8000, lastPayment: "2025-08-02", paid: false },
+  { id: 5, name: "Cynthia Adhiambo", house: "Lolwe E5", rent: 10000, lastPayment: "2025-07-30", paid: true },
+  { id: 6, name: "Peter Ouma", house: "Kondele F6", rent: 7000, lastPayment: "2025-08-03", paid: false },
+  { id: 7, name: "Janet Awuor", house: "Nyalenda G7", rent: 6000, lastPayment: "2025-07-25", paid: true },
+  { id: 8, name: "Collins Omondi", house: "Oginga H8", rent: 11000, lastPayment: "2025-08-04", paid: false },
+  { id: 9, name: "Beatrice Akoth", house: "Kisumu Central I9", rent: 12500, lastPayment: "2025-07-27", paid: true },
+  { id: 10, name: "Michael Odhiambo", house: "Manyatta J10", rent: 5000, lastPayment: "2025-08-06", paid: false },
+  { id: 11, name: "Sharon Awino", house: "Nyalenda East K11", rent: 7000, lastPayment: "2025-08-01", paid: true },
+  { id: 12, name: "Samuel Okoth", house: "Milimani L12", rent: 16000, lastPayment: "2025-07-29", paid: false },
+  { id: 13, name: "Lucy Atieno", house: "Tom Mboya M13", rent: 8500, lastPayment: "2025-07-31", paid: true },
+  { id: 14, name: "Victor Ochieng", house: "Kondele N14", rent: 7200, lastPayment: "2025-08-05", paid: false },
+  { id: 15, name: "Ann Akinyi", house: "Lolwe O15", rent: 9500, lastPayment: "2025-08-02", paid: true },
+  { id: 16, name: "George Were", house: "Lakeview P16", rent: 11200, lastPayment: "2025-08-03", paid: false },
+  { id: 17, name: "Dorothy Achieng", house: "Milimani Q17", rent: 15500, lastPayment: "2025-07-26", paid: true },
+  { id: 18, name: "Kennedy Odongo", house: "Kisumu Heights R18", rent: 11800, lastPayment: "2025-08-06", paid: false },
+  { id: 19, name: "Hellen Atieno", house: "Manyatta S19", rent: 5600, lastPayment: "2025-08-01", paid: true },
+  { id: 20, name: "Felix Onyango", house: "Nyalenda West T20", rent: 6800, lastPayment: "2025-08-04", paid: false }
+];
+
+// payments store tenantId (so renaming a tenant doesn't duplicate)
+let payments = [
+  { id: 1, tenantId: 1, amount: 12000, date: "2025-08-01", method: "M-Pesa", reference: "TXN-1001" },
+  { id: 2, tenantId: 3, amount: 15000, date: "2025-07-28", method: "Bank", reference: "TXN-1002" },
+  { id: 3, tenantId: 5, amount: 10000, date: "2025-07-30", method: "Cash", reference: "TXN-1003" },
+  { id: 4, tenantId: 7, amount: 6000, date: "2025-07-25", method: "M-Pesa", reference: "TXN-1004" },
+  { id: 5, tenantId: 9, amount: 12500, date: "2025-07-27", method: "Bank", reference: "TXN-1005" },
+  { id: 6, tenantId: 11, amount: 7000, date: "2025-08-01", method: "Cash", reference: "TXN-1006" },
+  { id: 7, tenantId: 13, amount: 8500, date: "2025-07-31", method: "M-Pesa", reference: "TXN-1007" },
+  { id: 8, tenantId: 15, amount: 9500, date: "2025-08-02", method: "Bank", reference: "TXN-1008" },
+  { id: 9, tenantId: 17, amount: 15500, date: "2025-07-26", method: "Cash", reference: "TXN-1009" },
+  { id: 10, tenantId: 19, amount: 5600, date: "2025-08-01", method: "M-Pesa", reference: "TXN-1010" }
+];
 
   // -----------------------
   // Helpers
