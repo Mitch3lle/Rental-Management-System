@@ -525,42 +525,73 @@ let payments = [
   // Tenants table
   // -----------------------
   function populateTenants() {
-    const tbody = $("tenants-body");
-    if (!tbody) return;
-    tbody.innerHTML = "";
+  const tenantSection = document.getElementById("tenant-section");
+  if (!tenantSection) return;
 
-    const searchEl = $("tenantSearch");
-    const filterEl = $("tenantFilter");
-    const searchValue = searchEl ? searchEl.value.toLowerCase() : "";
-    const filterValue = filterEl ? filterEl.value : "all";
+  // If the container doesn't exist yet, create it
+  let container = document.querySelector("#tenants-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "tenants-container";
+    container.className = "table-container";
+    tenantSection.appendChild(container);
+  }
 
-    tenants
-      .filter(t => {
-        const matchesSearch = !searchValue || t.name.toLowerCase().includes(searchValue);
-        const matchesFilter =
-          filterValue === "all" ||
-          (filterValue === "paid" && t.paid) ||
-          (filterValue === "unpaid" && !t.paid);
-        return matchesSearch && matchesFilter;
-      })
-      .forEach((t) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${t.name}</td>
-          <td>${t.house}</td>
-          <td>${formatKsh(t.rent)}</td>
-          <td>${t.lastPayment || ""}</td>
-          <td>
-            <span class="${t.paid ? 'status-paid' : 'status-unpaid'}">
-              ${t.paid ? 'Paid' : 'Unpaid'}
-            </span>
-            ${t.paid ? '' : `<button class="mark-paid-btn" data-id="${t.id}">Mark as Paid</button>`}
-            <button class="edit-btn" data-id="${t.id}">Edit</button>
-            <button class="delete-btn" data-id="${t.id}">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
+  // Build the table
+  container.innerHTML = `
+    <table id="tenants-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>House No.</th>
+          <th>Rent Amount</th>
+          <th>Last Payment</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tenants-body"></tbody>
+    </table>
+  `;
+
+  const tbody = document.getElementById("tenants-body");
+  if (!tbody) return;
+
+  const searchEl = $("tenantSearch");
+  const filterEl = $("tenantFilter");
+  const searchValue = searchEl ? searchEl.value.toLowerCase() : "";
+  const filterValue = filterEl ? filterEl.value : "all";
+
+  tenants
+    .filter(t => {
+      const matchesSearch = !searchValue || t.name.toLowerCase().includes(searchValue);
+      const matchesFilter =
+        filterValue === "all" ||
+        (filterValue === "paid" && t.paid) ||
+        (filterValue === "unpaid" && !t.paid);
+      return matchesSearch && matchesFilter;
+    })
+    .forEach((t) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${t.name}</td>
+        <td>${t.house}</td>
+        <td>${formatKsh(t.rent)}</td>
+        <td>${t.lastPayment || ""}</td>
+        <td>
+          <span class="${t.paid ? 'status-paid' : 'status-unpaid'}">
+            ${t.paid ? 'Paid' : 'Unpaid'}
+          </span>
+          ${t.paid ? '' : `<button class="mark-paid-btn" data-id="${t.id}">Mark as Paid</button>`}
+          <button class="edit-btn" data-id="${t.id}">Edit</button>
+          <button class="delete-btn" data-id="${t.id}">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+  
+
+
 
     // attach "Mark as Paid"
     document.querySelectorAll(".mark-paid-btn").forEach(btn => {
