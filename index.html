@@ -162,33 +162,39 @@
 
           <!-- TENANTS -->
           <section id="tenant-section" style="display: none;">
-            <h2>Current Tenants</h2>
+  <h2>Current Tenants</h2>
 
-            <div class="tenant-controls" style="margin-bottom: 1rem; display: flex; gap: 1rem;">
-               <input type="text" id="tenantSearch" placeholder="Search by name..." style="padding: 6px; border: 1px solid #ccc; border-radius: 6px; flex: 1;">
-    
-                <select id="tenantFilter" style="padding: 6px; border: 1px solid #ccc; border-radius: 6px;">
-                <option value="all">All</option>
-                        <option value="paid">Paid</option>
-                        <option value="unpaid">Unpaid</option>
-                 </select>
-               </div>
-                <button id="addTenantBtn">Add Tenant</button>
-            <table class="tenants-table">
-              <thead>
-                <tr>
-                  <th> Name</th>
-                  <th>House No.</th>
-                  <th>Rent Amount</th>
-                  <th>Last Payment</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="tenants-body"></tbody>
-            </table>
-            <button id="addTenantBtn">Add Tenant</button>
-            
-          </section>
+  <div class="tenant-controls" style="margin-bottom: 1rem; display: flex; gap: 1rem;">
+    <input type="text" id="tenantSearch" placeholder="Search by name..." style="padding: 6px; border: 1px solid #ccc; border-radius: 6px; flex: 1;">
+
+    <select id="tenantFilter" style="padding: 6px; border: 1px solid #ccc; border-radius: 6px;">
+      <option value="all">All</option>
+      <option value="paid">Paid</option>
+      <option value="unpaid">Unpaid</option>
+    </select>
+  </div>
+
+  <button id="addTenantBtn">Add Tenant</button>
+
+  <!-- 👇 Scrollable wrapper -->
+  <div class="tenants-table-wrapper">
+    <table class="tenants-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>House No.</th>
+          <th>Rent Amount</th>
+          <th>Last Payment</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tenants-body"></tbody>
+    </table>
+  </div>
+
+  <button id="addTenantBtn">Add Tenant</button>
+</section>
+
 
           <!-- PAYMENTS -->
          <section id="payment-section" style="display: none;">
