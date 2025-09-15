@@ -1047,3 +1047,25 @@ button {
 .action-delete:hover {
   background: #e57373;
 }
+.table-container {
+  max-height: 300px;   /* adjust depending on page layout */
+  overflow-y: auto;    /* vertical scroll only */
+  border: 1px solid #ddd;
+}
+
+#tenants-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#tenants-table th, #tenants-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#tenants-table th {
+  background-color: #f4f4f4;
+  position: sticky;
+  top: 0;             /* keeps header visible while scrolling */
+  z-index: 1;
+}
