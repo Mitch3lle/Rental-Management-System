@@ -1061,3 +1061,49 @@ button {
   background: #f8f8f8;
   z-index: 1;
 }
+/* ========== RESPONSIVE FIXES ========== */
+
+/* For tablets and below */
+@media (max-width: 992px) {
+  .tenant-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .tenant-controls input,
+  .tenant-controls select {
+    width: 100%;
+  }
+
+  .tenants-table th,
+  .tenants-table td {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+/* For mobile phones */
+@media (max-width: 600px) {
+  .tenants-table {
+    font-size: 12px;
+  }
+
+  .tenants-table th,
+  .tenants-table td {
+    padding: 6px;
+  }
+
+  /* Make table scrollable horizontally */
+  .tenants-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .tenants-table {
+    min-width: 500px; /* keep table readable */
+  }
+
+  #addTenantBtn {
+    width: 100%; /* button stretches on small screens */
+  }
+}
