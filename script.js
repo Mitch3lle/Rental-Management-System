@@ -585,7 +585,7 @@ let payments = [
           <button class="edit-btn" data-id="${t.id}">Edit</button>
           <button class="delete-btn" data-id="${t.id}">Delete</button>
         </td>
-      `;
+      `;  
       tbody.appendChild(row);
     });
 
