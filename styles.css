@@ -1107,3 +1107,15 @@ button {
     width: 100%; /* button stretches on small screens */
   }
 }
+.logout-btn {
+  margin-top: 200px;
+  color: #ff4444;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  color: #cc0000;
+}
+
+

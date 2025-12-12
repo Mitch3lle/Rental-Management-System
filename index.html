@@ -7,10 +7,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
-
   <title>George's Rental Management System</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
 </head>
 <body>
   <main>
@@ -23,7 +22,6 @@
        <span class="spinner"></span> Logging in...
        </div>
       <p id="login-error" style="color:red; margin-top:10px; display:none;"></p>
-
 
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" required />
@@ -108,7 +106,6 @@
 </section>
 
 
-
     <!-- DASHBOARD SECTION -->
     <section id="dashboard-section" style="display: none;">
       <div class="layout">
@@ -123,11 +120,11 @@
     <li id="nav-messages">
       ✉Messages <span id="newMessageCount" class="badge"></span>
     </li>
+    <li id="nav-logout" class="logout-btn">Logout</li>
   </ul>
 </div>
 
         
-
 
         <!-- Main Content -->
         <div class="main">
@@ -194,7 +191,6 @@
 
   <button id="addTenantBtn">Add Tenant</button>
 </section>
-
 
           <!-- PAYMENTS -->
          <section id="payment-section" style="display: none;">
@@ -271,7 +267,6 @@
 </table>
 </section>
 
-
           
           <!-- REPORTS -->
            <section id="report-section" style="display:none;">
@@ -336,16 +331,13 @@
 </div>
 
 
-
 <!-- Export Buttons -->
 <div class="export-buttons">
   <button id="export-csv-btn">Export CSV</button>
   <button id="export-pdf-btn">Export PDF</button>
 </div>
 
-
 </section>
-
 
 
           <!-- MESSAGES -->
@@ -415,9 +407,10 @@
 
 
 
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script src="script.js"></script>
 </body>
 </html>
+
+

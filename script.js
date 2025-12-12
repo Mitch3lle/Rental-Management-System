@@ -1,4 +1,3 @@
-// full script.js — complete and integrated
 document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
   // Data (tenants + payments)
@@ -324,6 +323,46 @@ let payments = [
       updateReports();
     };
   }
+// -----------------------
+// LOGOUT FUNCTIONALITY
+// -----------------------
+const navLogout = $("nav-logout");
+
+if (navLogout) {
+    navLogout.onclick = () => {
+        const confirmLogout = confirm("Are you sure you want to logout?");
+        if (!confirmLogout) return;
+
+        // Hide all main sections
+        const sections = document.querySelectorAll(".section");
+        sections.forEach(sec => sec.style.display = "none");
+
+        // Reset login form fields
+        if ($("login-form")) $("login-form").reset();
+
+        // Reset OTP display
+        if ($("otp-section")) $("otp-section").style.display = "none";
+        if ($("otp-code")) $("otp-code").value = "";
+
+        // Hide any login/OTP errors
+        if ($("login-error")) $("login-error").style.display = "none";
+        if ($("otp-error")) $("otp-error").style.display = "none";
+
+        // Hide dashboard
+        if ($("dashboard-section"))
+            $("dashboard-section").style.display = "none";
+
+        // Show the login page again
+        if ($("login-section"))
+            $("login-section").style.display = "block";
+
+        // Hide Google dummy login info (if present)
+        if ($("user-info"))
+            $("user-info").style.display = "none";
+
+        alert("You have been logged out.");
+    };
+}
 
   // -----------------------
   // Payments table population (reads tenant names via tenantId)
@@ -590,7 +629,6 @@ let payments = [
     });
 
   
-
 
 
     // attach "Mark as Paid"
@@ -1005,9 +1043,9 @@ let payments = [
     });
   }
 
-  // -----------------------
+ 
   // Initialize UI state (first paint)
-  // -----------------------
+
   populateTenants();
   populatePaymentsTable();
   updatePaymentTenantDropdown();
@@ -1028,3 +1066,15 @@ let payments = [
     updateBalancesTable
   };
 }); // DOMContentLoaded end
+
+
+
+
+
+
+
+
+
+
+
+
